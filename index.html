@@ -2,571 +2,287 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Arcade Racer - Mario Kart Style</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>AMIAR KEMPF | SCUDERIA INFINITY 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Plus+Jakarta+Sans:wght@300;800&display=swap" rel="stylesheet">
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Press Start 2P', 'Courier New', monospace; }
-        #info {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            color: white;
-            background: rgba(0,0,0,0.6);
-            padding: 10px 15px;
-            border-radius: 8px;
-            z-index: 10;
-            font-size: 14px;
-            pointer-events: none;
-            backdrop-filter: blur(5px);
+        :root {
+            --gold: linear-gradient(135deg, #d4af37, #f7ef8a, #ae8625);
+            --red: #cc0000;
+            --glass: rgba(0, 0, 0, 0.7);
+            --border: rgba(212, 175, 55, 0.3);
         }
-        #race-info {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            color: white;
-            background: rgba(0,0,0,0.6);
-            padding: 10px 15px;
-            border-radius: 8px;
-            text-align: right;
-            z-index: 10;
-            font-size: 14px;
+
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+
+        /* Luxus HUD */
+        #hud-top {
+            position: absolute; top: 40px; left: 20px; right: 20px;
+            display: flex; justify-content: space-between; z-index: 100;
             pointer-events: none;
         }
+        .glass-panel {
+            background: var(--glass); border: 1px solid var(--border);
+            padding: 15px 25px; border-radius: 20px; backdrop-filter: blur(15px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .brand { font-family: 'Orbitron'; font-weight: 900; letter-spacing: 4px; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Speedometer */
+        #speedo {
+            position: absolute; bottom: 40px; right: 30px; width: 120px; height: 120px;
+            border: 4px solid var(--border); border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: var(--glass); z-index: 100;
+        }
+        .speed-val { font-family: 'Orbitron'; font-size: 28px; font-weight: 900; color: #f7ef8a; }
+
+        /* Controls */
         #controls {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 10px;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(5px);
-            z-index: 20;
-            pointer-events: none;
+            position: absolute; bottom: 40px; left: 30px;
+            display: flex; gap: 20px; align-items: center; z-index: 100;
         }
-        button {
-            pointer-events: auto;
-            background: #ffcc00;
-            border: none;
-            border-radius: 50px;
-            padding: 12px 20px;
-            font-size: 18px;
-            font-weight: bold;
-            font-family: monospace;
-            color: #333;
-            box-shadow: 0 4px 0 #aa8800;
-            cursor: pointer;
-            transition: 0.05s linear;
-            touch-action: manipulation;
+        .btn-circle {
+            width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border);
+            background: var(--glass); color: white; font-weight: 900; cursor: pointer;
+            backdrop-filter: blur(10px); transition: 0.2s; pointer-events: auto;
         }
-        button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #aa8800;
+        .btn-circle:active { transform: scale(0.9); border-color: #f7ef8a; }
+        .btn-item { background: var(--gold); color: black; border: none; }
+
+        #steering-wheel {
+            width: 150px; height: 150px; border: 8px solid var(--border);
+            border-radius: 50%; transition: transform 0.1s; pointer-events: auto;
         }
-        .drift-btn {
-            background: #3399ff;
-            box-shadow: 0 4px 0 #004499;
-            color: white;
+
+        #drift-bar {
+            position: absolute; bottom: 170px; left: 30px; width: 150px; height: 6px;
+            background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;
         }
-        .item-btn {
-            background: #ff6600;
-            box-shadow: 0 4px 0 #992200;
-            color: white;
+        #drift-fill { width: 0%; height: 100%; background: var(--gold); transition: width 0.1s; }
+
+        /* Overlay */
+        #overlay {
+            position: fixed; inset: 0; background: #000; z-index: 1000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: 0.5s;
         }
-        #drift-boost-bar {
-            position: absolute;
-            bottom: 100px;
-            left: 20px;
-            width: 150px;
-            height: 15px;
-            background: rgba(0,0,0,0.6);
-            border-radius: 10px;
-            overflow: hidden;
-            z-index: 10;
-        }
-        #drift-fill {
-            width: 0%;
-            height: 100%;
-            background: #ffaa00;
-            transition: width 0.05s linear;
-        }
-        .item-icon {
-            position: absolute;
-            bottom: 100px;
-            right: 20px;
-            width: 50px;
-            height: 50px;
-            background: rgba(0,0,0,0.7);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            z-index: 10;
-            color: gold;
-        }
-        @media (max-width: 700px) {
-            button { padding: 8px 15px; font-size: 14px; }
-            #info, #race-info { font-size: 10px; }
+        .start-btn {
+            background: var(--gold); border: none; padding: 20px 60px;
+            border-radius: 50px; font-family: 'Orbitron'; font-weight: 900;
+            cursor: pointer; font-size: 20px; margin-top: 30px;
         }
     </style>
 </head>
 <body>
-    <div id="info">
-        🏁 ARCADE RACER 🏁<br>
-        WASD / Pfeiltasten | Mobil: Slider + Buttons
-    </div>
-    <div id="race-info">
-        Runde: <span id="lap">0</span>/3<br>
-        Position: <span id="position">-</span><br>
-        Zeit: <span id="timer">0.0</span>s
-    </div>
-    <div id="drift-boost-bar">
-        <div id="drift-fill"></div>
-    </div>
-    <div class="item-icon" id="item-icon">
-        🧺
-    </div>
-    <div id="controls">
-        <input type="range" id="steer" min="-1" max="1" step="0.02" value="0" style="width: 200px; pointer-events: auto;">
-        <button id="driftBtn" class="drift-btn">DRIFT</button>
-        <button id="itemBtn" class="item-btn">ITEM</button>
+
+    <div id="overlay">
+        <h1 class="brand" style="font-size: 40px;">SCUDERIA INFINITY</h1>
+        <p style="opacity: 0.6; letter-spacing: 2px;">PRODUZIERT VON WOWA & AMIAR KEMPF</p>
+        <button class="start-btn" onclick="startRace()">START MISSION</button>
     </div>
 
-    <!-- Import Three.js und Zusatzbibliotheken -->
+    <div id="hud-top">
+        <div class="glass-panel">
+            <div class="brand">AMIAR KEMPF</div>
+            <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VELOCITY EDITION</div>
+        </div>
+        <div class="glass-panel" style="text-align: right;">
+            <div id="lap-display">RUNDE 1 / 3</div>
+            <div id="pos-display" style="color: #f7ef8a; font-weight: 800;">POS: 1 / 4</div>
+        </div>
+    </div>
+
+    <div id="drift-bar"><div id="drift-fill"></div></div>
+
+    <div id="controls">
+        <input type="range" id="steer-input" min="-1" max="1" step="0.1" value="0" style="display:none">
+        <div id="steering-wheel" style="background: radial-gradient(circle, transparent 40%, rgba(212,175,55,0.1) 100%);"></div>
+        <button class="btn-circle btn-item" id="item-trigger">ITEM</button>
+        <button class="btn-circle" id="drift-trigger">DRIFT</button>
+    </div>
+
+    <div id="speedo">
+        <div class="speed-val" id="speed-val">0</div>
+        <div style="font-size: 10px; opacity: 0.5;">KM/H</div>
+    </div>
+
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
-            }
-        }
+        { "imports": { "three": "https://unpkg.com/three@0.150.0/build/three.module.js" } }
     </script>
 
     <script type="module">
         import * as THREE from 'three';
 
-        // ---------- SPIEL-WELT ----------
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB);
-        scene.fog = new THREE.Fog(0x87CEEB, 60, 120);
-
-        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 6, -8);
-        camera.lookAt(0, 0, 5);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
-
-        // Licht
-        const ambientLight = new THREE.AmbientLight(0x404040);
-        scene.add(ambientLight);
-        const dirLight = new THREE.DirectionalLight(0xffffff, 1);
-        dirLight.position.set(5, 10, 7);
-        dirLight.castShadow = true;
-        dirLight.receiveShadow = true;
-        scene.add(dirLight);
-        const fillLight = new THREE.PointLight(0xccaa88, 0.5);
-        fillLight.position.set(0, 5, 0);
-        scene.add(fillLight);
-
-        // Boden (Gras)
-        const ground = new THREE.Mesh(
-            new THREE.PlaneGeometry(200, 200),
-            new THREE.MeshStandardMaterial({ color: 0x5c9e5c, roughness: 0.8 })
-        );
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = -0.5;
-        ground.receiveShadow = true;
-        scene.add(ground);
-
-        // ----- STRECKE (einfacher Rundkurs mit Waypoints) -----
-        const trackPoints = [];
-        // Oval mit leichten Kurven
-        const radiusX = 18;
-        const radiusZ = 12;
-        for (let i = 0; i <= 40; i++) {
-            const t = i / 40 * Math.PI * 2;
-            const x = Math.cos(t) * radiusX;
-            const z = Math.sin(t) * radiusZ;
-            trackPoints.push(new THREE.Vector3(x, 0, z));
-        }
-        // Wegpunkte für KI & Rundenlogik (exakt gleiche Punkte)
-        const waypoints = trackPoints.map(p => p.clone());
-
-        // Streckenband (Linie)
-        const lineMat = new THREE.LineBasicMaterial({ color: 0xdddd88 });
-        const trackLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints(trackPoints), lineMat);
-        scene.add(trackLine);
-
-        // Markierungen (kleine Würfel als Leitplanke)
-        for (let i = 0; i < trackPoints.length; i += 2) {
-            const p = trackPoints[i];
-            const marker = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.2, 0.5), new THREE.MeshStandardMaterial({ color: 0xffaa44 }));
-            marker.position.set(p.x, 0.1, p.z);
-            scene.add(marker);
-        }
-
-        // Item-Boxen (auf der Strecke)
-        const itemBoxPositions = [5, 12, 18, 25, 32, 38].map(idx => trackPoints[idx % trackPoints.length].clone());
-        const itemBoxes = [];
+        // --- KONFIGURATION ---
+        let scene, camera, renderer, playerCar, clock;
+        let speed = 0, rotation = 0, steer = 0;
+        let isDrifting = false, driftPower = 0;
+        let currentLap = 1, raceActive = false;
         
-        // Autos visuell (einfache Würfel + Reifen)
-        function createCar(color, pos) {
-            const group = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.4, 1.6), new THREE.MeshStandardMaterial({ color: color, metalness: 0.7 }));
-            body.castShadow = true;
-            body.receiveShadow = true;
-            body.position.y = 0.2;
-            group.add(body);
-            const wheelGeo = new THREE.CylinderGeometry(0.25, 0.25, 0.1, 16);
-            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x222222 });
-            const positions = [[-0.6, 0.1, -0.8], [0.6, 0.1, -0.8], [-0.6, 0.1, 0.8], [0.6, 0.1, 0.8]];
-            positions.forEach(posW => {
-                const wheel = new THREE.Mesh(wheelGeo, wheelMat);
-                wheel.rotation.z = Math.PI / 2;
-                wheel.position.set(posW[0], posW[1], posW[2]);
-                group.add(wheel);
-            });
-            group.position.copy(pos);
-            return group;
-        }
+        const config = {
+            maxSpeed: 0.8,
+            accel: 0.005,
+            decel: 0.002,
+            turnSpeed: 0.04
+        };
 
-        // ----- SPIELER -----
-        const playerCar = createCar(0xff3333, new THREE.Vector3(0, 0, 0));
-        scene.add(playerCar);
-        let playerPos = new THREE.Vector3(0, 0, 0);
-        let playerRot = 0;
-        let playerSpeed = 0;
-        let maxSpeed = 12;
-        let acceleration = 0.2;
-        let turnSpeed = 2.5;
-        let driftMode = false;
-        let driftTimer = 0;
-        let driftBoostReady = false;
-        let currentItem = null; // 'mushroom', 'banana', 'shell'
-        let canUseItem = true;
-
-        // ----- KI-GEGNER -----
-        const kicars = [];
-        const kiColors = [0x44aa44, 0x4444ff, 0xaa44aa];
-        const kiWaypointIdx = [0, 5, 12];
-        const kiSpeeds = [5.5, 6.2, 5.0];
-        const kiItems = [null, null, null];
-        for (let i = 0; i < 3; i++) {
-            const startIdx = (i+1) * 4 % waypoints.length;
-            const startPos = waypoints[startIdx].clone();
-            startPos.y = 0;
-            const car = createCar(kiColors[i], startPos);
-            scene.add(car);
-            kicars.push({
-                mesh: car,
-                waypointIndex: startIdx,
-                speed: kiSpeeds[i],
-                item: null,
-                itemCooldown: 0
-            });
-        }
-
-        // ----- ITEM BOXEN (3D)-----
-        const boxMat = new THREE.MeshStandardMaterial({ color: 0xffaa44, emissive: 0x442200 });
-        itemBoxPositions.forEach(pos => {
-            const box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), boxMat);
-            box.position.set(pos.x, 0.5, pos.z);
-            scene.add(box);
-            itemBoxes.push({ mesh: box, position: pos, active: true });
-        });
-
-        // Bananen / Shells (dynamische Objekte)
-        const dynamicItems = []; // { type, position, rotation, life, owner }
-
-        // ----- RENNLOGIK -----
-        let currentLap = 0;
-        let totalLaps = 3;
-        let raceActive = true;
-        let raceTimer = 0;
-        let playerWaypointIdx = 0;
-        let lapWaypointCount = 0;
-        let lastWaypointIdx = -1;
-        
-        function updateRaceLogic() {
-            if (!raceActive) return;
-            // Spieler nächster Waypoint
-            const closest = getClosestWaypointIndex(playerPos);
-            if (closest !== lastWaypointIdx) {
-                if (closest === 0 && lastWaypointIdx === waypoints.length-1) {
-                    currentLap++;
-                    if (currentLap >= totalLaps) {
-                        raceActive = false;
-                        document.getElementById("info").innerHTML = "🏆 RENNEN BEENDET! 🏆<br>Du hast gewonnen! (Seite neu laden)";
-                    }
-                }
-                lastWaypointIdx = closest;
-            }
-            document.getElementById("lap").innerText = currentLap;
-            document.getElementById("timer").innerText = raceTimer.toFixed(1);
-            // Position ermitteln (einfach: nach waypoint index sortieren)
-            let playerProgress = lastWaypointIdx + currentLap * waypoints.length;
-            let positions = [{ name: "player", progress: playerProgress }];
-            kicars.forEach((ki, idx) => {
-                let kiProg = ki.waypointIndex + (ki.lap || 0) * waypoints.length;
-                positions.push({ name: `KI${idx}`, progress: kiProg });
-            });
-            positions.sort((a,b) => b.progress - a.progress);
-            const playerRank = positions.findIndex(p => p.name === "player") + 1;
-            document.getElementById("position").innerText = playerRank;
-        }
-
-        function getClosestWaypointIndex(pos) {
-            let best = 0;
-            let bestDist = Infinity;
-            for (let i = 0; i < waypoints.length; i++) {
-                const wp = waypoints[i];
-                const d = pos.distanceTo(wp);
-                if (d < bestDist) {
-                    bestDist = d;
-                    best = i;
-                }
-            }
-            return best;
-        }
-
-        // KI Bewegung
-        function updateKI(delta) {
-            for (let i = 0; i < kicars.length; i++) {
-                const ki = kicars[i];
-                const targetIdx = (ki.waypointIndex + 1) % waypoints.length;
-                const targetPos = waypoints[targetIdx];
-                const dir = new THREE.Vector3().subVectors(targetPos, ki.mesh.position).normalize();
-                const newPos = ki.mesh.position.clone().add(dir.multiplyScalar(ki.speed * delta));
-                newPos.y = 0;
-                ki.mesh.position.copy(newPos);
-                // Rotation
-                const angle = Math.atan2(dir.x, dir.z);
-                ki.mesh.rotation.y = angle;
-                // Distanzcheck
-                if (ki.mesh.position.distanceTo(targetPos) < 1.2) {
-                    ki.waypointIndex = targetIdx;
-                    if (targetIdx === 0) ki.lap = (ki.lap || 0) + 1;
-                }
-                // KI Items nutzen
-                if (ki.item && ki.itemCooldown <= 0) {
-                    useItemOnKI(ki);
-                    ki.item = null;
-                    ki.itemCooldown = 2;
-                }
-                if (ki.itemCooldown > 0) ki.itemCooldown -= delta;
-                // Item-Boxen für KI
-                for (let box of itemBoxes) {
-                    if (box.active && ki.mesh.position.distanceTo(box.position) < 1.2) {
-                        ki.item = getRandomItemType();
-                        box.active = false;
-                        box.mesh.visible = false;
-                        setTimeout(() => { box.active = true; box.mesh.visible = true; }, 5000);
-                        break;
-                    }
-                }
-            }
-        }
-
-        function getRandomItemType() {
-            const r = Math.random();
-            if (r < 0.33) return 'mushroom';
-            if (r < 0.66) return 'banana';
-            return 'shell';
-        }
-
-        function useItemOnKI(ki) {
-            if (ki.item === 'mushroom') {
-                ki.speed += 3;
-                setTimeout(() => { ki.speed -= 3; }, 2000);
-            } else if (ki.item === 'banana') {
-                const bananaPos = ki.mesh.position.clone().sub(ki.mesh.getWorldDirection(new THREE.Vector3()).multiplyScalar(1.2));
-                dynamicItems.push({ type: 'banana', position: bananaPos, life: 10, owner: 'ki' });
-            } else if (ki.item === 'shell') {
-                const dir = ki.mesh.getWorldDirection(new THREE.Vector3());
-                dynamicItems.push({ type: 'shell', position: ki.mesh.position.clone(), direction: dir, life: 5, owner: 'ki' });
-            }
-        }
-
-        // Items verwenden (Spieler)
-        function usePlayerItem() {
-            if (!currentItem || !raceActive) return;
-            if (currentItem === 'mushroom') {
-                playerSpeed += 8;
-                setTimeout(() => { if (raceActive) playerSpeed = Math.max(playerSpeed - 8, 2); }, 2000);
-            } else if (currentItem === 'banana') {
-                const backward = new THREE.Vector3(Math.sin(playerRot), 0, Math.cos(playerRot)).multiplyScalar(-1.2);
-                const bananaPos = playerPos.clone().add(backward);
-                dynamicItems.push({ type: 'banana', position: bananaPos, life: 10, owner: 'player' });
-            } else if (currentItem === 'shell') {
-                const forward = new THREE.Vector3(Math.sin(playerRot), 0, Math.cos(playerRot));
-                dynamicItems.push({ type: 'shell', position: playerPos.clone(), direction: forward, life: 5, owner: 'player' });
-            }
-            currentItem = null;
-            document.getElementById("item-icon").innerHTML = "🧺";
-        }
-
-        // Dynamische Items updaten & Kollisionen
-        function updateDynamicItems(delta) {
-            for (let i=0; i<dynamicItems.length; i++) {
-                const it = dynamicItems[i];
-                if (it.type === 'banana') {
-                    // statisch
-                } else if (it.type === 'shell') {
-                    it.position.add(it.direction.clone().multiplyScalar(12 * delta));
-                }
-                it.life -= delta;
-                if (it.life <= 0) { dynamicItems.splice(i,1); i--; continue; }
-                // Kollision mit Spieler
-                if (it.owner !== 'player' && playerPos.distanceTo(it.position) < 1.0) {
-                    if (it.type === 'banana') playerSpeed = 0.5;
-                    else if (it.type === 'shell') playerSpeed = 1;
-                    dynamicItems.splice(i,1);
-                    i--;
-                    continue;
-                }
-                // Kollision mit KI
-                for (let ki of kicars) {
-                    if (it.owner !== 'ki' && ki.mesh.position.distanceTo(it.position) < 1.0) {
-                        if (it.type === 'banana') ki.speed = 1;
-                        else if (it.type === 'shell') ki.speed = 1;
-                        dynamicItems.splice(i,1);
-                        i--;
-                        break;
-                    }
-                }
-            }
-        }
-
-        // ---- Steuerung (Tastatur + Touch) ----
-        let steerInput = 0;
-        let driftPressed = false;
-        // Tastatur
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'a') steerInput = -1;
-            if (e.key === 'ArrowRight' || e.key === 'd') steerInput = 1;
-            if (e.key === ' ' || e.key === 'Shift') { driftPressed = true; e.preventDefault(); }
-            if (e.key === 'e' || e.key === 'Control') { usePlayerItem(); e.preventDefault(); }
-        });
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'ArrowRight' || e.key === 'd') steerInput = 0;
-            if (e.key === ' ' || e.key === 'Shift') { driftPressed = false; endDrift(); e.preventDefault(); }
-        });
-        // Touch Slider
-        const steerSlider = document.getElementById('steer');
-        steerSlider.addEventListener('input', (e) => { steerInput = parseFloat(e.target.value); });
-        const driftBtn = document.getElementById('driftBtn');
-        driftBtn.addEventListener('mousedown', () => { driftPressed = true; });
-        driftBtn.addEventListener('mouseup', () => { driftPressed = false; endDrift(); });
-        driftBtn.addEventListener('touchstart', (e) => { e.preventDefault(); driftPressed = true; });
-        driftBtn.addEventListener('touchend', (e) => { e.preventDefault(); driftPressed = false; endDrift(); });
-        document.getElementById('itemBtn').addEventListener('click', () => usePlayerItem());
-        document.getElementById('itemBtn').addEventListener('touchstart', (e) => { e.preventDefault(); usePlayerItem(); });
-
-        function endDrift() {
-            if (driftBoostReady && raceActive) {
-                playerSpeed += 10;
-                driftBoostReady = false;
-            }
-            driftMode = false;
-            document.getElementById('drift-fill').style.width = '0%';
-        }
-
-        // Spieler-Update
-        function updatePlayer(delta) {
-            if (!raceActive) return;
-            // Gas (immer minimal speed)
-            if (playerSpeed < maxSpeed) playerSpeed += acceleration * delta;
-            else playerSpeed = maxSpeed;
-            // Lenkung
-            let turn = steerInput * turnSpeed * (playerSpeed / maxSpeed) * delta;
-            playerRot += turn;
-            // Drift
-            if (driftPressed && playerSpeed > 5) {
-                driftMode = true;
-                driftTimer += delta;
-                if (driftTimer > 0.6 && !driftBoostReady) {
-                    driftBoostReady = true;
-                }
-                const fill = Math.min(1, driftTimer / 0.6) * 100;
-                document.getElementById('drift-fill').style.width = fill + '%';
-                // Drift-Lenkverstärkung
-                turn += steerInput * 1.5 * delta;
-                playerRot += turn;
-            } else if (!driftPressed && driftMode) {
-                endDrift();
-                driftTimer = 0;
-            }
-            // Bewegung
-            const forward = new THREE.Vector3(Math.sin(playerRot), 0, Math.cos(playerRot));
-            playerPos.add(forward.multiplyScalar(playerSpeed * delta));
-            // Auf Strecke halten (einfach zurückziehen zu nächstem Waypoint)
-            const closestWpIdx = getClosestWaypointIndex(playerPos);
-            const targetOnTrack = waypoints[closestWpIdx];
-            const toTarget = targetOnTrack.clone().sub(playerPos);
-            if (toTarget.length() > 3.5) {
-                playerPos.lerp(targetOnTrack, 0.05);
-            }
-            playerPos.y = 0;
-            playerCar.position.copy(playerPos);
-            playerCar.rotation.y = playerRot;
-            
-            // Item-Boxen sammeln
-            for (let box of itemBoxes) {
-                if (box.active && playerPos.distanceTo(box.position) < 1.2) {
-                    const rand = Math.random();
-                    if (rand < 0.34) currentItem = 'mushroom';
-                    else if (rand < 0.67) currentItem = 'banana';
-                    else currentItem = 'shell';
-                    document.getElementById("item-icon").innerHTML = currentItem === 'mushroom' ? '🍄' : (currentItem === 'banana' ? '🍌' : '🐚');
-                    box.active = false;
-                    box.mesh.visible = false;
-                    setTimeout(() => { box.active = true; box.mesh.visible = true; }, 5000);
-                    break;
-                }
-            }
-        }
-
-        // Kamera folgen
-        function updateCamera() {
-            const targetPos = playerPos.clone();
-            const idealOffset = new THREE.Vector3(0, 3.5, -6);
-            const rotatedOffset = idealOffset.clone().applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,0,1), new THREE.Vector3(Math.sin(playerRot), 0, Math.cos(playerRot))));
-            camera.position.lerp(targetPos.clone().add(rotatedOffset), 0.1);
-            camera.lookAt(playerPos);
-        }
-
-        // Timer und Rennen
-        let lastTime = performance.now();
-        function gameLoop() {
-            const now = performance.now();
-            let delta = Math.min(0.033, (now - lastTime) / 1000);
-            lastTime = now;
-            if (raceActive) raceTimer += delta;
-            updatePlayer(delta);
-            updateKI(delta);
-            updateDynamicItems(delta);
-            updateRaceLogic();
-            updateCamera();
-            renderer.render(scene, camera);
-            requestAnimationFrame(gameLoop);
-        }
-        
-        // Start
         function init() {
-            playerPos.set(0, 0, 0);
-            playerRot = 0;
-            playerSpeed = 0;
-            currentLap = 0;
-            raceActive = true;
-            raceTimer = 0;
-            lastWaypointIdx = -1;
-            gameLoop();
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050505);
+            scene.fog = new THREE.Fog(0x050505, 40, 90);
+
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.toneMapping = THREE.ReinhardToneMapping;
+            document.body.appendChild(renderer.domElement);
+
+            clock = new THREE.Clock();
+
+            // Licht
+            const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
+            scene.add(hemi);
+            const sun = new THREE.DirectionalLight(0xd4af37, 1.5);
+            sun.position.set(10, 20, 10);
+            scene.add(sun);
+
+            createTrack();
+            createPlayer();
+            animate();
         }
+
+        function createTrack() {
+            // Boden mit Carbon-Gitter-Struktur
+            const groundGeo = new THREE.PlaneGeometry(1000, 1000);
+            const groundMat = new THREE.MeshStandardMaterial({ 
+                color: 0x111111, 
+                roughness: 0.2, 
+                metalness: 0.5 
+            });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            scene.add(ground);
+
+            // Rennstrecke (Glänzender Asphalt)
+            const trackPath = new THREE.Shape();
+            trackPath.absellipse(0, 0, 60, 40, 0, Math.PI * 2, false);
+            const trackGeo = new THREE.ExtrudeGeometry(trackPath, { depth: 0.1, bevelEnabled: false });
+            const trackMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.1 });
+            const track = new THREE.Mesh(trackGeo, trackMat);
+            track.rotation.x = -Math.PI / 2;
+            track.position.y = 0.01;
+            scene.add(track);
+
+            // Goldene Leitlinien
+            const lineGeo = new THREE.RingGeometry(59.5, 60.5, 64);
+            const lineMat = new THREE.MeshBasicMaterial({ color: 0xd4af37 });
+            const line = new THREE.Mesh(lineGeo, lineMat);
+            line.rotation.x = -Math.PI / 2;
+            line.position.y = 0.05;
+            scene.add(line);
+        }
+
+        function createPlayer() {
+            playerCar = new THREE.Group();
+            
+            // Karosserie (Luxus Sportwagen Form)
+            const bodyGeo = new THREE.BoxGeometry(1.2, 0.5, 2.5);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xcc0000, metalness: 0.9, roughness: 0.1 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.4;
+            playerCar.add(body);
+
+            // Glas
+            const glassGeo = new THREE.BoxGeometry(1.0, 0.4, 1.0);
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 1, roughness: 0 });
+            const glass = new THREE.Mesh(glassGeo, glassMat);
+            glass.position.set(0, 0.7, 0.2);
+            playerCar.add(glass);
+
+            // Unterbodenbeleuchtung (Neon Gold)
+            const neon = new THREE.PointLight(0xd4af37, 2, 5);
+            neon.position.y = 0.1;
+            playerCar.add(neon);
+
+            scene.add(playerCar);
+        }
+
+        // Steuerung Logic
+        const keys = {};
+        window.onkeydown = (e) => keys[e.code] = true;
+        window.onkeyup = (e) => keys[e.code] = false;
+
+        function updatePhysics() {
+            if(!raceActive) return;
+
+            // Gas / Bremse
+            if(keys['ArrowUp'] || keys['KeyW']) speed += config.accel;
+            else speed -= config.decel;
+
+            speed = Math.max(0, Math.min(speed, config.maxSpeed));
+
+            // Lenkung
+            if(keys['ArrowLeft'] || keys['KeyA']) steer = THREE.MathUtils.lerp(steer, 1, 0.1);
+            else if(keys['ArrowRight'] || keys['KeyD']) steer = THREE.MathUtils.lerp(steer, -1, 0.1);
+            else steer = THREE.MathUtils.lerp(steer, 0, 0.1);
+
+            // Drift Logic
+            if(isDrifting && speed > 0.3) {
+                driftPower = THREE.MathUtils.lerp(driftPower, 100, 0.02);
+                rotation += steer * config.turnSpeed * 1.5;
+            } else {
+                rotation += steer * config.turnSpeed * (speed * 2);
+                driftPower = THREE.MathUtils.lerp(driftPower, 0, 0.1);
+            }
+
+            // Bewegung anwenden
+            playerCar.position.x += Math.sin(rotation) * speed;
+            playerCar.position.z += Math.cos(rotation) * speed;
+            playerCar.rotation.y = rotation;
+            
+            // Rad-Neigung (Visual)
+            playerCar.rotation.z = -steer * 0.1;
+
+            // Kamera-Follow (Smooth)
+            const camOffset = new THREE.Vector3(-Math.sin(rotation) * 8, 4, -Math.cos(rotation) * 8);
+            camera.position.lerp(playerCar.position.clone().add(camOffset), 0.1);
+            camera.lookAt(playerCar.position);
+
+            // UI Update
+            document.getElementById('speed-val').innerText = Math.floor(speed * 400);
+            document.getElementById('drift-fill').style.width = driftPower + '%';
+            document.getElementById('steering-wheel').style.transform = `rotate(${-steer * 45}deg)`;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            updatePhysics();
+            renderer.render(scene, camera);
+        }
+
+        // Mobile Controls
+        const driftBtn = document.getElementById('drift-trigger');
+        driftBtn.onpointerdown = () => isDrifting = true;
+        driftBtn.onpointerup = () => {
+            if(driftPower > 80) speed += 0.3; // Boost
+            isDrifting = false;
+        };
+
+        window.startRace = () => {
+            document.getElementById('overlay').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('overlay').style.display = 'none';
+                raceActive = true;
+            }, 500);
+        };
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
         init();
     </script>
 </body>
