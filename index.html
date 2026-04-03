@@ -5,225 +5,239 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>SCUDERIA INFINITY</title>
+    <title>SCUDERIA PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --red: #cc0000; }
+        :root { --gold: #d4af37; --red: #ff0000; --neon: #00ffff; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { background: #000; color: white; font-family: 'Orbitron', sans-serif; overflow: hidden; height: 100vh; }
 
-        /* UI OVERLAYS */
-        #ui-layer { position: absolute; inset: 0; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 1s; }
-        .hud-panel { position: absolute; top: env(safe-area-inset-top, 40px); left: 20px; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.3); }
-        .timer-panel { position: absolute; top: env(safe-area-inset-top, 40px); right: 20px; text-align: right; }
-        .speed-panel { position: absolute; bottom: 40px; right: 20px; text-align: right; }
-        
-        #speed-val { font-size: 3rem; color: var(--gold); line-height: 1; }
-        #timer-val { font-size: 2.5rem; color: var(--red); }
-        .label { font-size: 0.6rem; letter-spacing: 2px; opacity: 0.7; text-transform: uppercase; }
+        /* UI ELEMENTS */
+        #hud { position: absolute; inset: 0; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 1s; }
+        .panel { position: absolute; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 20px; border: 2px solid rgba(212,175,55,0.3); backdrop-filter: blur(10px); }
+        .top-left { top: env(safe-area-inset-top, 40px); left: 20px; }
+        .top-right { top: env(safe-area-inset-top, 40px); right: 20px; text-align: right; }
+        .bottom-right { bottom: 40px; right: 20px; border-radius: 50%; width: 100px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* SCREENS */
-        .screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-        .btn { background: none; border: 2px solid var(--gold); color: var(--gold); padding: 15px 40px; font-family: 'Orbitron'; font-size: 1.2rem; cursor: pointer; margin-top: 30px; border-radius: 50px; }
-        .btn:active { background: var(--gold); color: #000; }
+        #speed-num { font-size: 2.5rem; color: var(--gold); line-height: 1; }
+        #time-num { font-size: 2.5rem; color: var(--red); text-shadow: 0 0 10px var(--red); }
+        .label { font-size: 0.5rem; letter-spacing: 2px; opacity: 0.6; text-transform: uppercase; }
 
-        /* TOUCH CONTROLS (Hidden) */
-        #t-left { position: absolute; left: 0; top: 0; width: 40%; height: 100%; z-index: 50; }
-        #t-right { position: absolute; right: 0; top: 0; width: 40%; height: 100%; z-index: 50; }
-        #t-gas { position: absolute; left: 40%; top: 0; width: 20%; height: 100%; z-index: 50; }
+        /* OVERLAYS */
+        .screen { position: fixed; inset: 0; background: radial-gradient(circle, #111 0%, #000 100%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .btn-start { background: linear-gradient(45deg, #ae8625, #f7ef8a, #d4af37); border: none; color: #000; padding: 20px 60px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; cursor: pointer; border-radius: 50px; box-shadow: 0 0 30px rgba(212,175,55,0.4); }
         
-        #level-up { position: fixed; top: 50%; width: 100%; text-align: center; font-size: 3rem; color: var(--gold); opacity: 0; transition: 0.5s; pointer-events: none; z-index: 200; }
+        /* TOUCH INPUT ZONES */
+        #touch-L { position: absolute; left: 0; top: 0; width: 35%; height: 100%; z-index: 50; }
+        #touch-R { position: absolute; right: 0; top: 0; width: 35%; height: 100%; z-index: 50; }
+        #touch-G { position: absolute; left: 35%; top: 0; width: 30%; height: 100%; z-index: 50; }
+
+        #msg { position: fixed; top: 20%; width: 100%; text-align: center; font-size: 4rem; color: var(--gold); opacity: 0; transition: 0.5s; z-index: 200; pointer-events: none; font-weight: 900; }
     </style>
 </head>
 <body>
 
     <div id="start-screen" class="screen">
-        <h1 style="font-size: 3rem; letter-spacing: 10px; color: var(--gold);">SCUDERIA</h1>
-        <p style="opacity: 0.5; font-size: 0.8rem;">CHAMPIONSHIP EDITION</p>
-        <button class="btn" onclick="startGame()">MOTOR STARTEN</button>
+        <div style="font-size: 0.8rem; letter-spacing: 5px; margin-bottom: 10px;">AMIAR KEMPF PRESENTS</div>
+        <h1 style="font-size: 4rem; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 20px rgba(212,175,55,0.5);">SCUDERIA</h1>
+        <button class="btn-start" onclick="beginRace()">START</button>
     </div>
 
     <div id="game-over" class="screen" style="display: none;">
-        <h1 style="color: var(--red); font-size: 3rem;">FINISH</h1>
-        <div id="final-stats" style="margin: 20px 0; font-size: 1.2rem;"></div>
-        <button class="btn" onclick="location.reload()">NEUSTART</button>
+        <h1 style="color: var(--red); font-size: 4rem;">RACE OVER</h1>
+        <div id="result" style="margin: 20px 0; font-size: 1.5rem; color: var(--gold);"></div>
+        <button class="btn-start" style="font-size: 1rem;" onclick="location.reload()">NOCHMAL</button>
     </div>
 
-    <div id="level-up">STAGE UP</div>
+    <div id="msg">STAGE UP!</div>
 
-    <div id="ui-layer">
-        <div class="hud-panel">
+    <div id="hud">
+        <div class="panel top-left">
             <div class="label">Fahrer</div>
-            <div style="font-size: 0.9rem;">AMIAR KEMPF</div>
-            <div class="label" style="margin-top: 10px;">Bestleistung</div>
-            <div id="highscore" style="color: var(--gold);">0m</div>
+            <div style="font-size: 1rem; color: #fff;">SCUDERIA PILOT</div>
+            <div class="label" style="margin-top: 10px;">Rekord</div>
+            <div id="best-score" style="color: var(--gold);">0m</div>
         </div>
-        <div class="timer-panel">
-            <div class="label">Zeit</div>
-            <div id="timer-val">30</div>
+        <div class="panel top-right">
+            <div class="label">Zeitlimit</div>
+            <div id="time-num">30</div>
         </div>
-        <div class="speed-panel">
-            <div id="speed-val">0</div>
-            <div class="label">km/h Velocity</div>
+        <div class="panel bottom-right">
+            <div id="speed-num">00</div>
+            <div class="label">km/h</div>
         </div>
     </div>
 
-    <div id="t-left"></div><div id="t-gas"></div><div id="t-right"></div>
+    <div id="touch-L"></div><div id="touch-G"></div><div id="touch-R"></div>
 
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
 
-        let scene, camera, renderer, car, checkpoint, grid;
-        let speed = 0, rot = 0, distance = 0, timeLeft = 30, stage = 1;
-        let input = { l: false, r: false, g: false }, gameActive = false;
-        let audioCtx, engineOsc, engineGain;
+        let scene, camera, renderer, car, checkpoint, grid, worldSpeed = 0;
+        let speed = 0, rotation = 0, distance = 0, timer = 30, stage = 1;
+        let input = { l: false, r: false, g: false }, active = false;
+        let audioCtx, osc, gain;
         const obstacles = [];
-
-        const stages = [
-            { grid: 0xd4af37, fog: 0x000000, name: "GOLD SECTOR" },
-            { grid: 0xff0000, fog: 0x100000, name: "RED NEON" },
-            { grid: 0x00ffff, fog: 0x000510, name: "CYBER BLUE" }
-        ];
 
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            engineOsc = audioCtx.createOscillator();
-            engineOsc.type = 'sawtooth';
-            engineGain = audioCtx.createGain();
-            engineGain.gain.value = 0.05;
-            engineOsc.connect(engineGain);
-            engineGain.connect(audioCtx.destination);
-            engineOsc.start();
+            osc = audioCtx.createOscillator();
+            osc.type = 'sawtooth';
+            gain = audioCtx.createGain();
+            gain.gain.value = 0.05;
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start();
         }
 
-        function playSfx(f, t, d) {
+        function sfx(freq, type, time) {
             if(!audioCtx) return;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.2, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+            o.type = type; o.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + time);
             o.connect(g); g.connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + d);
+            o.start(); o.stop(audioCtx.currentTime + time);
+        }
+
+        function createCar() {
+            const group = new THREE.Group();
+            // Karosserie
+            const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 2.5), new THREE.MeshStandardMaterial({color: 0xcc0000, metalness: 0.9, roughness: 0.1}));
+            body.position.y = 0.4;
+            group.add(body);
+            // Cockpit
+            const glass = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 1), new THREE.MeshStandardMaterial({color: 0x000000, metalness: 1}));
+            glass.position.set(0, 0.7, 0.2);
+            group.add(glass);
+            // Spoiler
+            const wing = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 0.4), new THREE.MeshStandardMaterial({color: 0x111111}));
+            wing.position.set(0, 0.8, -1.1);
+            group.add(wing);
+            // Scheinwerfer
+            const lightL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.1), new THREE.MeshBasicMaterial({color: 0xffffff}));
+            lightL.position.set(0.4, 0.4, 1.25);
+            group.add(lightL);
+            const lightR = lightL.clone(); lightR.position.x = -0.4;
+            group.add(lightR);
+
+            return group;
         }
 
         function init() {
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x000000, 5, 50);
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            scene.fog = new THREE.Fog(0x000000, 10, 60);
+            camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            // Car
-            car = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.BoxGeometry(1, 0.4, 2.2), new THREE.MeshStandardMaterial({color: 0xcc0000, metalness: 0.9}));
-            body.position.y = 0.2;
-            car.add(body);
-            scene.add(car);
+            // Light
+            scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+            const sun = new THREE.DirectionalLight(0xd4af37, 2);
+            sun.position.set(10, 20, 10);
+            scene.add(sun);
+
+            // Car & Grid
+            car = createCar(); scene.add(car);
+            grid = new THREE.GridHelper(1000, 100, 0xd4af37, 0x111111);
+            scene.add(grid);
 
             // Checkpoint
-            checkpoint = new THREE.Mesh(new THREE.TorusGeometry(5, 0.15, 16, 50), new THREE.MeshBasicMaterial({color: 0xd4af37}));
-            checkpoint.position.z = -100;
+            checkpoint = new THREE.Mesh(new THREE.TorusGeometry(6, 0.2, 16, 50), new THREE.MeshBasicMaterial({color: 0xd4af37}));
+            checkpoint.position.z = -120;
             scene.add(checkpoint);
 
             // Obstacles
-            for(let i=0; i<15; i++) {
-                const obs = new THREE.Mesh(new THREE.BoxGeometry(2, 5, 2), new THREE.MeshStandardMaterial({color: 0x222222}));
-                obs.position.set((Math.random()-0.5)*40, 2.5, -i*30 - 50);
-                scene.add(obs); obstacles.push(obs);
+            for(let i=0; i<20; i++) {
+                const o = new THREE.Mesh(new THREE.BoxGeometry(2, 6, 2), new THREE.MeshStandardMaterial({color: 0x222222, emissive: 0x110000}));
+                o.position.set((Math.random()-0.5)*50, 3, -i*40 - 60);
+                scene.add(o); obstacles.push(o);
             }
 
-            grid = new THREE.GridHelper(500, 100, 0xd4af37, 0x111111);
-            scene.add(grid);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
-            const l = new THREE.PointLight(0xd4af37, 2, 20);
-            l.position.set(0, 5, 0); car.add(l);
-
-            // Events
-            const t = (id, k) => {
+            // Controls
+            const setupTouch = (id, key) => {
                 const el = document.getElementById(id);
-                el.ontouchstart = (e) => { e.preventDefault(); input[k] = true; };
-                el.ontouchend = () => input[k] = false;
+                el.ontouchstart = (e) => { e.preventDefault(); input[key] = true; };
+                el.ontouchend = () => input[key] = false;
             };
-            t('t-left', 'l'); t('t-right', 'r'); t('t-gas', 'g');
+            setupTouch('touch-L', 'l'); setupTouch('touch-R', 'r'); setupTouch('touch-G', 'g');
 
-            document.getElementById('highscore').innerText = (localStorage.getItem('scuderia_best') || 0) + "m";
+            document.getElementById('best-score').innerText = (localStorage.getItem('scud_best') || 0) + "m";
             
+            setInterval(() => { if(active && timer > 0) timer--; }, 1000);
             update();
-            setInterval(() => { if(gameActive && timeLeft > 0) timeLeft--; }, 1000);
         }
 
         function update() {
-            if(!gameActive) return;
+            if(!active) return;
             requestAnimationFrame(update);
 
-            if(timeLeft <= 0) return endGame();
+            if(timer <= 0) return finish();
 
-            // Drive
-            if(input.g) speed = THREE.MathUtils.lerp(speed, 0.85, 0.04);
+            // Drive Physics
+            if(input.g) speed = THREE.MathUtils.lerp(speed, 0.9, 0.03);
             else speed = THREE.MathUtils.lerp(speed, 0, 0.02);
 
-            if(input.l) { rot += 0.045; car.rotation.z = 0.2; }
-            else if(input.r) { rot -= 0.045; car.rotation.z = -0.2; }
+            if(input.l) { rotation += 0.045; car.rotation.z = 0.2; }
+            else if(input.r) { rotation -= 0.045; car.rotation.z = -0.2; }
             else { car.rotation.z = 0; }
 
-            car.position.x += Math.sin(rot) * speed;
-            car.position.z += Math.cos(rot) * speed;
-            car.rotation.y = rot;
+            car.position.x += Math.sin(rotation) * speed;
+            car.position.z += Math.cos(rotation) * speed;
+            car.rotation.y = rotation;
             distance += speed;
 
-            // Audio
-            if(engineOsc) engineOsc.frequency.setTargetAtTime(40 + (speed * 180), audioCtx.currentTime, 0.1);
+            if(osc) osc.frequency.setTargetAtTime(40 + (speed * 180), audioCtx.currentTime, 0.1);
 
-            // Collisions
-            if(car.position.distanceTo(checkpoint.position) < 7) {
-                timeLeft += 15; stage++;
-                playSfx(600, 'sine', 0.3);
-                checkpoint.position.z -= 250;
+            // Checkpoint Hit
+            if(car.position.distanceTo(checkpoint.position) < 8) {
+                timer += 15; stage++;
+                sfx(700, 'sine', 0.4);
+                checkpoint.position.z -= 300;
                 checkpoint.position.x = car.position.x + (Math.random()-0.5)*40;
-                const s = stages[(stage-1) % stages.length];
-                scene.fog.color.setHex(s.fog);
-                grid.material.color.setHex(s.grid);
-                document.getElementById('level-up').style.opacity = 1;
-                setTimeout(() => document.getElementById('level-up').style.opacity = 0, 1000);
+                document.getElementById('msg').style.opacity = 1;
+                setTimeout(() => document.getElementById('msg').style.opacity = 0, 1000);
             }
 
+            // Obstacle Hits
             obstacles.forEach(o => {
-                if(car.position.distanceTo(o.position) < 2.2) {
-                    speed = -0.3; playSfx(80, 'sawtooth', 0.2);
+                if(car.position.distanceTo(o.position) < 2.5) {
+                    speed = -0.3; sfx(100, 'sawtooth', 0.2);
                 }
-                if(o.position.z > car.position.z + 20) {
-                    o.position.z = car.position.z - 300;
-                    o.position.x = car.position.x + (Math.random()-0.5)*60;
+                if(o.position.z > car.position.z + 30) {
+                    o.position.z = car.position.z - 400;
+                    o.position.x = car.position.x + (Math.random()-0.5)*80;
                 }
             });
 
-            // Camera
-            camera.fov = 70 + (speed * 30); camera.updateProjectionMatrix();
-            const camPos = new THREE.Vector3(car.position.x - Math.sin(rot)*7, 3.5, car.position.z - Math.cos(rot)*7);
+            // Camera Action
+            camera.fov = 65 + (speed * 35); camera.updateProjectionMatrix();
+            const camPos = new THREE.Vector3(car.position.x - Math.sin(rotation)*8, 4, car.position.z - Math.cos(rotation)*8);
             camera.position.lerp(camPos, 0.1);
             camera.lookAt(car.position);
 
-            document.getElementById('speed-val').innerText = Math.floor(speed * 380);
-            document.getElementById('timer-val').innerText = timeLeft;
+            // HUD
+            document.getElementById('speed-num').innerText = Math.floor(speed * 360);
+            document.getElementById('time-num').innerText = timer;
             renderer.render(scene, camera);
         }
 
-        function endGame() {
-            gameActive = false;
-            if(distance > (localStorage.getItem('scuderia_best') || 0)) localStorage.setItem('scuderia_best', Math.floor(distance));
+        function finish() {
+            active = false;
+            const best = localStorage.getItem('scud_best') || 0;
+            if(distance > best) localStorage.setItem('scud_best', Math.floor(distance));
             document.getElementById('game-over').style.display = 'flex';
-            document.getElementById('final-stats').innerText = `Distanz: ${Math.floor(distance)}m`;
-            if(engineGain) engineGain.gain.value = 0;
+            document.getElementById('result').innerText = `Distanz: ${Math.floor(distance)}m`;
+            if(gain) gain.gain.value = 0;
         }
 
-        window.startGame = () => {
+        window.beginRace = () => {
             initAudio(); init();
             document.getElementById('start-screen').style.display = 'none';
-            document.getElementById('ui-layer').style.opacity = 1;
-            gameActive = true;
+            document.getElementById('hud').style.opacity = 1;
+            active = true;
         };
     </script>
 </body>
