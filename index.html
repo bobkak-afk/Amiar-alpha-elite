@@ -2,222 +2,89 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AMIAR KEMPF | SCUDERIA PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>SCUDERIA INFINITY | PRO EDITION</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Orbitron', sans-serif; }
-        #ui {
-            position: absolute; inset: 0; pointer-events: none;
-            display: flex; flex-direction: column; justify-content: space-between; padding: 40px;
-            background: radial-gradient(circle at center, transparent 40%, rgba(0,0,0,0.4) 100%);
-        }
-        .glass {
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(15px);
-            border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 20px; padding: 20px;
-            pointer-events: auto; box-shadow: 0 0 30px rgba(212, 175, 55, 0.1);
-        }
-        .speed-hud { align-self: flex-end; text-align: right; min-width: 150px; }
-        .kmh { font-size: 3rem; color: #f7ef8a; line-height: 1; }
-        .label { font-size: 0.7rem; color: #d4af37; letter-spacing: 3px; }
-        
-        #controls { display: flex; gap: 20px; align-self: center; margin-bottom: 20px; }
-        .btn {
-            width: 80px; height: 80px; border-radius: 50%; border: 2px solid #d4af37;
-            background: rgba(0,0,0,0.5); color: #f7ef8a; font-size: 1.2rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .btn:active { background: #d4af37; color: #000; transform: scale(0.9); }
-        
-        #overlay {
-            position: fixed; inset: 0; background: #000; z-index: 1000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .start-btn {
-            background: linear-gradient(135deg, #d4af37, #ae8625); border: none;
-            padding: 20px 60px; border-radius: 50px; font-family: 'Orbitron';
-            font-weight: 900; color: #000; cursor: pointer; font-size: 1.5rem;
-            box-shadow: 0 0 50px rgba(212, 175, 55, 0.4);
-        }
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        #ui { position: absolute; top: 20px; left: 20px; color: #d4af37; z-index: 10; pointer-events: none; }
+        .stats { font-size: 2rem; font-weight: bold; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
+        #controls-hint { position: absolute; bottom: 20px; width: 100%; text-align: center; color: rgba(255,255,255,0.3); font-size: 0.8rem; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-
-<div id="overlay">
-    <h1 style="color: #d4af37; letter-spacing: 10px; margin-bottom: 10px;">SCUDERIA</h1>
-    <p style="color: #fff; opacity: 0.4; margin-bottom: 40px;">AMIAR KEMPF & WOWA EXCLUSIVE</p>
-    <button class="start-btn" onclick="start()">MISSION START</button>
-</div>
-
-<div id="ui">
-    <div class="glass" style="width: fit-content;">
-        <div class="label">STATUS</div>
-        <div style="color: #fff; font-size: 0.8rem;" id="status-text">SYSTEMS READY</div>
+    <div id="ui">
+        <div style="font-size: 0.7rem; letter-spacing: 3px;">VELOCITY UNITS</div>
+        <div id="speed" class="stats">000</div>
     </div>
-    
-    <div id="controls">
-        <div class="btn" id="left">◀</div>
-        <div class="btn" style="background: #cc0000; border: none;" id="drift">DRIFT</div>
-        <div class="btn" id="right">▶</div>
-    </div>
+    <div id="controls-hint">WASD TO DRIVE | SHIFT TO DRIFT</div>
 
-    <div class="glass speed-hud">
-        <div class="kmh" id="kmh">0</div>
-        <div class="label">KM/H VELOCITY</div>
-    </div>
-</div>
+    <script type="module">
+        import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
 
-<script type="importmap">
-    { "imports": { "three": "https://unpkg.com/three@0.150.0/build/three.module.js" } }
-</script>
-
-<script type="module">
-    import * as THREE from 'three';
-
-    let scene, camera, renderer, car, particles, clock;
-    let speed = 0, rotation = 0, steer = 0, isDrifting = false;
-    const sparks = [];
-
-    function init() {
-        scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x000000, 20, 100);
-        clock = new THREE.Clock();
-
-        camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 1000);
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        // 1. SETUP & LUXUS-BELEUCHTUNG
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x000000, 10, 50);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.toneMapping = THREE.ReinhardToneMapping;
         document.body.appendChild(renderer.domElement);
 
-        // Beleuchtung (Edler Gold-Ton)
-        const light = new THREE.DirectionalLight(0xd4af37, 1.5);
-        light.position.set(5, 10, 5);
-        scene.add(light);
+        // Goldene Lichter
+        const sun = new THREE.DirectionalLight(0xd4af37, 1.5);
+        sun.position.set(5, 10, 7);
+        scene.add(sun);
         scene.add(new THREE.AmbientLight(0x404040));
 
-        // High-Tech Boden
-        const grid = new THREE.GridHelper(200, 40, 0xd4af37, 0x222222);
+        // 2. DIE WELT (Schwarzer Asphalt & Goldgitter)
+        const grid = new THREE.GridHelper(200, 50, 0xff0000, 0x222222);
         scene.add(grid);
 
-        // Das Auto (Luxus-Silhouette)
-        const bodyGeo = new THREE.BoxGeometry(1.2, 0.4, 2.6);
-        const bodyMat = new THREE.MeshStandardMaterial({ color: 0xcc0000, metalness: 0.9, roughness: 0.1 });
-        car = new THREE.Mesh(bodyGeo, bodyMat);
-        car.position.y = 0.4;
+        // 3. DAS AUTO (Amiar Kempf Special Edition)
+        const car = new THREE.Group();
+        const body = new THREE.Mesh(
+            new THREE.BoxGeometry(1, 0.4, 2),
+            new THREE.MeshStandardMaterial({ color: 0xcc0000, metalness: 0.9, roughness: 0.1 })
+        );
+        body.position.y = 0.2;
+        car.add(body);
         scene.add(car);
 
-        // Scheinwerfer (Echte Lichtquellen)
-        const headLight = new THREE.SpotLight(0xffffff, 2, 20, 0.5);
-        headLight.position.set(0, 0.5, 1.5);
-        car.add(headLight);
-        car.add(headLight.target);
-        headLight.target.position.set(0, 0, 5);
+        // 4. PHYSIK-VARIABLEN
+        let speed = 0, rotation = 0, steer = 0;
+        const keys = {};
+        window.onkeydown = (e) => keys[e.code] = true;
+        window.onkeyup = (e) => keys[e.code] = false;
 
-        // Funken-System (Particles)
-        const sparkGeo = new THREE.SphereGeometry(0.05, 4, 4);
-        const sparkMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
-        for(let i=0; i<30; i++) {
-            const s = new THREE.Mesh(sparkGeo, sparkMat);
-            s.visible = false;
-            scene.add(s);
-            sparks.push({ mesh: s, life: 0 });
+        // 5. GAME LOOP (Das Herzstück)
+        function update() {
+            // Beschleunigung
+            if (keys['KeyW']) speed = THREE.MathUtils.lerp(speed, 0.6, 0.05);
+            else speed = THREE.MathUtils.lerp(speed, 0, 0.02);
+
+            // Lenkung & Drift-Gefühl
+            const driftMult = keys['ShiftLeft'] ? 2.5 : 1.0;
+            if (keys['KeyA']) rotation += 0.04 * driftMult * (speed * 2);
+            if (keys['KeyD']) rotation -= 0.04 * driftMult * (speed * 2);
+
+            // Bewegung anwenden
+            car.position.x += Math.sin(rotation) * speed;
+            car.position.z += Math.cos(rotation) * speed;
+            car.rotation.y = rotation;
+
+            // Dynamische Kamera (FOV ändert sich bei Speed)
+            camera.fov = 60 + (speed * 40);
+            camera.updateProjectionMatrix();
+            
+            const camOffset = new THREE.Vector3(-Math.sin(rotation) * 5, 2.5, -Math.cos(rotation) * 5);
+            camera.position.lerp(car.position.clone().add(camOffset), 0.1);
+            camera.lookAt(car.position);
+
+            document.getElementById('speed').innerText = Math.floor(speed * 400).toString().padStart(3, '0');
+            
+            renderer.render(scene, camera);
+            requestAnimationFrame(update);
         }
-
-        animate();
-    }
-
-    const input = { left: false, right: false, drift: false };
-    document.getElementById('left').onpointerdown = () => input.left = true;
-    document.getElementById('left').onpointerup = () => input.left = false;
-    document.getElementById('right').onpointerdown = () => input.right = true;
-    document.getElementById('right').onpointerup = () => input.right = false;
-    document.getElementById('drift').onpointerdown = () => input.drift = true;
-    document.getElementById('drift').onpointerup = () => input.drift = false;
-
-    window.addEventListener('keydown', e => {
-        if(e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = true;
-        if(e.code === 'ArrowRight' || e.code === 'KeyD') input.right = true;
-        if(e.code === 'Space') input.drift = true;
-    });
-    window.addEventListener('keyup', e => {
-        if(e.code === 'ArrowLeft' || e.code === 'KeyA') input.left = false;
-        if(e.code === 'ArrowRight' || e.code === 'KeyD') input.right = false;
-        if(e.code === 'Space') input.drift = false;
-    });
-
-    function createSparks() {
-        if(!input.drift || speed < 0.3) return;
-        const s = sparks.find(spark => !spark.mesh.visible);
-        if(s) {
-            s.mesh.visible = true;
-            s.mesh.position.copy(car.position);
-            s.mesh.position.y = 0.1;
-            s.life = 1.0;
-            s.vel = new THREE.Vector3((Math.random()-0.5)*0.2, 0.1, (Math.random()-0.5)*0.2);
-        }
-    }
-
-    function animate() {
-        requestAnimationFrame(animate);
-        const dt = clock.getDelta();
-
-        // Beschleunigung & Field of View Effekt
-        speed = THREE.MathUtils.lerp(speed, 0.8, 0.01);
-        camera.fov = 60 + (speed * 30);
-        camera.updateProjectionMatrix();
-
-        // Lenkung & Drift
-        let turnTarget = 0;
-        if(input.left) turnTarget = 0.04;
-        if(input.right) turnTarget = -0.04;
-        
-        if(input.drift) {
-            rotation += turnTarget * 1.5;
-            car.rotation.z = THREE.MathUtils.lerp(car.rotation.z, turnTarget * 10, 0.1);
-            createSparks();
-            document.getElementById('status-text').innerText = "DRIFTING...";
-        } else {
-            rotation += turnTarget * (speed * 1.5);
-            car.rotation.z = THREE.MathUtils.lerp(car.rotation.z, turnTarget * 5, 0.1);
-            document.getElementById('status-text').innerText = "STABLE";
-        }
-
-        car.position.x += Math.sin(rotation) * speed;
-        car.position.z += Math.cos(rotation) * speed;
-        car.rotation.y = rotation;
-
-        // Kamera-Smoothing
-        const camPos = new THREE.Vector3(
-            car.position.x - Math.sin(rotation) * 6,
-            3,
-            car.position.z - Math.cos(rotation) * 6
-        );
-        camera.position.lerp(camPos, 0.1);
-        camera.lookAt(car.position);
-
-        // Funken-Update
-        sparks.forEach(s => {
-            if(s.mesh.visible) {
-                s.mesh.position.add(s.vel);
-                s.life -= 0.05;
-                if(s.life <= 0) s.mesh.visible = false;
-            }
-        });
-
-        document.getElementById('kmh').innerText = Math.floor(speed * 350);
-        renderer.render(scene, camera);
-    }
-
-    window.start = () => {
-        document.getElementById('overlay').style.display = 'none';
-        init();
-    };
-
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth/window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-</script>
+        update();
+    </script>
 </body>
 </html>
