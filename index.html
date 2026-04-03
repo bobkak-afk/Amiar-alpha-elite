@@ -4,304 +4,274 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>AMIAR KEMPF | PLATINUM VELOCITY</title>
+    <title>AMIAR KEMPF | 3D ELITE VELOCITY</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@300;400;700;900&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Plus+Jakarta+Sans:wght@300;500;800&family=Orbitron:wght@900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            --bg-dark: #020202;
+            --gold: linear-gradient(135deg, #d4af37, #f7ef8a, #ae8625, #f7ef8a, #d4af37);
+            --gold-solid: #d4af37;
+            --bg: #000;
             --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(191, 149, 63, 0.3);
-            --accent: #bf953f;
-            --safe-bottom: env(safe-area-inset-bottom);
+            --border: rgba(212, 175, 55, 0.3);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: white; height: 100vh; overflow: hidden; }
 
-        body { 
-            background: var(--bg-dark); color: #fff; height: 100vh; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
-        }
+        /* --- 3D CANVAS --- */
+        #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-        /* Hintergrund Partikel-Animation */
-        .bg-glow {
-            position: absolute; width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(191,149,63,0.15) 0%, transparent 70%);
-            top: -50px; right: -50px; z-index: 0; animation: float 10s infinite alternate;
-        }
-        @keyframes float { from { transform: translate(0,0); } to { transform: translate(-100px, 100px); } }
-
+        /* --- UI OVERLAY --- */
         .app-shell {
-            width: 100%; max-width: 440px; height: 100vh; background: var(--bg-dark);
-            position: relative; overflow: hidden; display: flex; flex-direction: column;
-            border: 1px solid rgba(255,255,255,0.05);
+            position: relative; z-index: 10; width: 100%; max-width: 480px; height: 100vh;
+            margin: 0 auto; display: flex; flex-direction: column; pointer-events: none;
         }
+        .app-shell > * { pointer-events: auto; }
 
         /* --- HEADER --- */
-        .header {
-            padding: 60px 25px 20px; text-align: center; z-index: 10;
+        .header { padding: 60px 30px 20px; text-align: center; }
+        .brand { 
+            font-family: 'Cinzel', serif; font-size: 1.8rem; letter-spacing: 8px;
+            background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
         }
-        .brand {
-            font-family: 'Cinzel', serif; font-size: 1.6rem; letter-spacing: 5px;
-            background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(191, 149, 63, 0.3);
-        }
-        .status-line { font-family: 'Orbitron'; font-size: 0.5rem; letter-spacing: 4px; color: #666; margin-top: 8px; }
+        .subtitle { font-family: 'Orbitron'; font-size: 0.5rem; letter-spacing: 4px; color: #555; margin-top: 5px; }
 
         /* --- SCREENS --- */
-        .screen { display: none; flex: 1; padding: 25px; flex-direction: column; z-index: 5; opacity: 0; transition: 0.5s; }
-        .screen.active { display: flex; opacity: 1; transform: scale(1); }
+        .screen { display: none; flex: 1; padding: 25px; flex-direction: column; justify-content: center; opacity: 0; transition: 0.5s ease; }
+        .screen.active { display: flex; opacity: 1; }
 
-        /* --- BENTO CARDS --- */
-        .card {
-            background: var(--glass); border: 1px solid var(--glass-border);
-            border-radius: 24px; padding: 20px; backdrop-filter: blur(15px);
-            margin-bottom: 15px; position: relative; overflow: hidden;
-        }
-        .card::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
-            transform: rotate(45deg); pointer-events: none;
+        /* --- LUXURY CARDS (Bento) --- */
+        .bento-card {
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 30px; padding: 25px; backdrop-filter: blur(20px);
+            margin-bottom: 20px; position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
 
-        /* --- UI ELEMENTS --- */
-        .btn-gold {
-            background: var(--gold-gradient); border: none; padding: 20px;
-            border-radius: 16px; color: #000; font-weight: 900; font-size: 0.9rem;
-            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
-            box-shadow: 0 15px 35px rgba(191, 149, 63, 0.3); transition: 0.3s;
+        /* --- BUTTONS --- */
+        .btn-prime {
+            background: var(--gold); color: #000; border: none; padding: 22px;
+            border-radius: 20px; font-family: 'Orbitron'; font-weight: 900; 
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 3px;
+            cursor: pointer; transition: 0.4s; box-shadow: 0 10px 40px rgba(174, 134, 37, 0.4);
         }
-        .btn-gold:active { transform: scale(0.96); box-shadow: 0 5px 15px rgba(191, 149, 63, 0.2); }
+        .btn-prime:hover { transform: scale(1.02); filter: brightness(1.1); }
 
-        .btn-outline {
-            background: transparent; border: 1px solid var(--glass-border); padding: 15px;
-            border-radius: 12px; color: var(--accent); font-size: 0.7rem; font-weight: 700;
-            letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; cursor: pointer;
-        }
-
-        /* --- RACING HUD --- */
-        .hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .hud-item { text-align: center; border-radius: 20px; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
-        .hud-label { font-size: 0.5rem; color: #888; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 5px; }
-        .hud-val { font-family: 'Orbitron'; color: var(--accent); font-size: 1rem; }
+        /* --- HUD --- */
+        .hud-top { display: flex; justify-content: space-between; padding: 0 20px; margin-bottom: 20px; }
+        .hud-stat { background: var(--glass); border: 1px solid var(--border); border-radius: 15px; padding: 10px 20px; text-align: center; }
+        .hud-label { font-size: 0.5rem; color: #888; text-transform: uppercase; letter-spacing: 2px; }
+        .hud-val { font-family: 'Orbitron'; color: var(--gold-solid); display: block; }
 
         /* --- QUIZ UI --- */
-        .q-text { font-size: 1.4rem; font-weight: 300; text-align: center; margin-bottom: 35px; line-height: 1.4; color: #efefef; }
+        .q-text { font-size: 1.5rem; font-weight: 300; text-align: center; margin-bottom: 40px; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .option {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
             padding: 22px; border-radius: 20px; margin-bottom: 15px; cursor: pointer;
-            transition: 0.3s; text-align: center; font-weight: 400; font-size: 1rem;
+            transition: 0.3s; text-align: center; font-weight: 500;
         }
-        .option:hover { border-color: var(--accent); background: rgba(191, 149, 63, 0.1); }
-        .correct { background: var(--gold-gradient) !important; color: #000 !important; font-weight: 900; }
-        .wrong { background: #600 !important; border-color: #f00 !important; }
-
-        /* --- NAV BAR --- */
-        .nav-bar {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            height: calc(85px + var(--safe-bottom)); background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(25px); border-top: 1px solid var(--glass-border);
-            display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: var(--safe-bottom); z-index: 100;
+        .option:hover { background: rgba(212, 175, 55, 0.1); border-color: var(--gold-solid); }
+        
+        /* --- NAVIGATION --- */
+        .bottom-nav {
+            padding: 20px 30px calc(20px + env(safe-area-inset-bottom));
+            display: flex; justify-content: space-around; background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(20px); border-top: 1px solid var(--border);
         }
-        .nav-btn { color: #666; font-size: 0.6rem; text-align: center; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; }
-        .nav-btn.active, .nav-btn:hover { color: var(--accent); }
-        .nav-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
+        .nav-link { color: #666; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; text-align: center; }
+        .nav-link.active { color: var(--gold-solid); }
 
-        /* Timer Line */
-        .timer-wrap { width: 100%; height: 2px; background: rgba(255,255,255,0.05); margin-bottom: 30px; }
-        .timer-fill { height: 100%; width: 100%; background: var(--gold-gradient); transition: width 0.1s linear; }
-
-        /* Track View */
-        .track { height: 80px; padding: 10px; background: linear-gradient(to bottom, transparent, rgba(191,149,63,0.05)); position: relative; }
-        .lane { height: 30px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.02); }
-        .car { position: absolute; left: 5%; font-size: 1.5rem; transition: 1s ease-out; filter: drop-shadow(0 0 10px var(--accent)); }
+        /* --- FOOTER --- */
+        .credits {
+            position: absolute; bottom: 100px; width: 100%; text-align: center;
+            font-size: 0.6rem; letter-spacing: 2px; color: #444; text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
-<div class="bg-glow"></div>
+<div id="canvas-container"></div>
 
 <div class="app-shell">
-    <div class="track">
-        <div class="lane"><div id="car-0" class="car">🏎️</div></div>
-        <div class="lane"><div id="car-1" class="car">🚙</div></div>
-    </div>
-
     <header class="header">
         <div class="brand">AMIAR KEMPF</div>
-        <div class="status-line">PLATINUM PERFORMANCE</div>
+        <div class="subtitle">VELOCITY 3D PLATINUM</div>
     </header>
 
     <div id="screen-home" class="screen active">
-        <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
-            <div class="card" style="text-align: center;">
-                <h3 style="font-weight: 300; letter-spacing: 3px; color: var(--accent); margin-bottom: 10px;">ELITE ACCESS</h3>
-                <p style="font-size: 0.8rem; opacity: 0.6; line-height: 1.6;">Authentifiziere dein System für das ultimative Velocity-Erlebnis.</p>
-            </div>
-            <button class="btn-gold" onclick="startGame()">System Starten</button>
-            <button class="btn-outline" onclick="nav('leader')">Leaderboard</button>
+        <div class="bento-card">
+            <h2 style="font-family: Cinzel; text-align: center; margin-bottom: 15px;">WILLKOMMEN</h2>
+            <p style="text-align: center; font-size: 0.9rem; opacity: 0.7; line-height: 1.6;">
+                Erlebe die Symbiose aus Luxus und Geschwindigkeit. Das Elite-System ist bereit für den Check-In.
+            </p>
         </div>
+        <button class="btn-prime" onclick="startGame()">Zündung Starten</button>
     </div>
 
     <div id="screen-race" class="screen">
-        <div class="hud-grid">
-            <div class="hud-item"><span class="hud-label">Speed</span><span class="hud-val" id="hud-speed">0</span></div>
-            <div class="hud-item"><span class="hud-label">Item</span><span class="hud-val" id="hud-item">None</span></div>
+        <div class="hud-top">
+            <div class="hud-stat"><span class="hud-label">Speed</span><span class="hud-val" id="hud-score">0</span></div>
+            <div class="hud-stat"><span class="hud-label">Sektor</span><span class="hud-val" id="hud-q">1/3</span></div>
         </div>
-        <div class="timer-wrap"><div id="timer-bar" class="timer-fill"></div></div>
         
-        <div id="quiz-ui">
-            <h2 class="q-text" id="q-text">System initialisiert...</h2>
+        <div id="quiz-content">
+            <h2 class="q-text" id="q-text">Lade Engine...</h2>
             <div id="options-box"></div>
         </div>
 
         <div id="feedback" style="display:none; text-align:center;">
-            <h1 id="fb-title" style="font-family: Cinzel; margin-bottom: 10px;"></h1>
-            <p id="fb-fact" style="font-size: 0.9rem; opacity: 0.6; margin-bottom: 40px;"></p>
-            <button class="btn-gold" style="width: 100%;" onclick="handleNext()">Weiter</button>
+            <h1 id="fb-status" style="font-family: Cinzel; margin-bottom: 20px;"></h1>
+            <button class="btn-prime" style="width: 100%;" onclick="nextAction()">Nächster Sektor</button>
         </div>
     </div>
 
     <div id="screen-leader" class="screen">
-        <h2 style="font-family: Cinzel; text-align: center; margin-bottom: 30px; letter-spacing: 5px;">HALL OF FAME</h2>
-        <div id="leaderboard-list"></div>
-        <button class="btn-gold" style="margin-top: 20px;" onclick="location.reload()">Reset</button>
+        <h2 style="font-family: Cinzel; text-align: center; margin-bottom: 30px;">BESTENLISTE</h2>
+        <div id="leader-list"></div>
+        <button class="btn-prime" style="margin-top: 20px;" onclick="location.reload()">Neustart</button>
     </div>
 
-    <nav class="nav-bar">
-        <div class="nav-btn" onclick="goBack()">
-            <span class="nav-icon">⟵</span><span>Back</span>
-        </div>
-        <div class="nav-btn" onclick="nav('home')">
-            <span class="nav-icon"> home</span><span>Home</span>
-        </div>
-        <div class="nav-btn" onclick="nav('leader')">
-            <span class="nav-icon">🏆</span><span>Elite</span>
-        </div>
+    <div class="credits">Produziert von Wowa & Amiar Kempf</div>
+
+    <nav class="bottom-nav">
+        <div class="nav-link" onclick="nav('home')">🏠<br>Home</div>
+        <div class="nav-link" onclick="nav('leader')">🏆<br>Elite</div>
     </nav>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script>
-    // --- APP LOGIK (REDUZIERT & STABIL) ---
+    // --- 3D ENGINE (THREE.JS) ---
+    let scene, camera, renderer, car, particles;
+
+    function init3D() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Licht
+        const light = new THREE.PointLight(0xd4af37, 2, 100);
+        light.position.set(10, 10, 10);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040, 2));
+
+        // Ersatz für Car-Modul (Ein glänzendes, abstraktes Hypercar-Objekt)
+        const geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+        const material = new THREE.MeshStandardMaterial({ 
+            color: 0xae8625, metalness: 1, roughness: 0.1,
+            emissive: 0xd4af37, emissiveIntensity: 0.2
+        });
+        car = new THREE.Mesh(geometry, material);
+        scene.add(car);
+
+        // Partikel (Goldstaub)
+        const partGeo = new THREE.BufferGeometry();
+        const partCount = 500;
+        const posArray = new Float32Array(partCount * 3);
+        for(let i=0; i<partCount*3; i++) posArray[i] = (Math.random() - 0.5) * 10;
+        partGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const partMat = new THREE.PointsMaterial({ size: 0.02, color: 0xd4af37, transparent: true, opacity: 0.5 });
+        particles = new THREE.Points(partGeo, partMat);
+        scene.add(particles);
+
+        camera.position.z = 5;
+        animate();
+    }
+
+    function animate() {
+        requestAnimationFrame(animate);
+        car.rotation.y += 0.005;
+        car.rotation.x += 0.002;
+        particles.rotation.y += 0.001;
+        renderer.render(scene, camera);
+    }
+
+    // --- GAME LOGIC ---
     const DB = [
-        { q: "Was definiert die Aerodynamik des Bugatti Chiron?", o: ["Vmax Modus", "Air-Brake System", "Allrad-Lenkung", "Carbon-Chassis"], c: 1, e: "Der Heckflügel dient als massive Luftbremse." },
-        { q: "Welches Edelmetall ist am teuersten?", o: ["Gold", "Platin", "Rhodium", "Silber"], c: 2, e: "Rhodium ist extrem selten und wertvoll." },
-        { q: "Wo liegt der Hauptsitz von Ferrari?", o: ["Mailand", "Turin", "Maranello", "Rom"], c: 2, e: "Maranello ist die Heimat des Cavallino Rampante." }
+        { q: "Welches Auto knackte als erstes die 300 mph Grenze?", o: ["Bugatti Chiron SS", "Koenigsegg Agera RS", "Hennessey Venom", "SSC Tuatara"], c: 0, e: "Der Chiron Super Sport 300+ schrieb Geschichte." },
+        { q: "Was bedeutet 'Amiar Kempf Velocity'?", o: ["Maximale Power", "Pure Eleganz", "Elite Performance", "Alles zusammen"], c: 3, e: "Ein Standard für sich." },
+        { q: "Welcher Motor liefert den reinsten Klang?", o: ["V8 Turbo", "V10 Saugmotor", "V12 Bi-Turbo", "Elektro"], c: 1, e: "Der V10 Saugmotor (wie im LFA) gilt als akustisches Meisterwerk." }
     ];
 
-    let state = {
-        players: [{ name: "Amiar Kempf", score: 0 }, { name: "Rival", score: 0 }],
-        curP: 0, curQ: 0, time: 10, timer: null, history: ['home']
-    };
+    let state = { score: 0, curQ: 0, timer: null };
 
     function nav(s) {
-        state.history.push(s);
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
         document.getElementById('screen-' + s).classList.add('active');
     }
 
-    function goBack() {
-        if(state.history.length > 1) {
-            state.history.pop();
-            nav(state.history.pop());
-        }
-    }
-
     function startGame() {
-        state.curP = 0;
-        state.players.forEach(p => p.score = 0);
-        updateTrack();
-        startTurn();
-    }
-
-    function startTurn() {
+        state.score = 0;
         state.curQ = 0;
         nav('race');
         loadQ();
     }
 
     function loadQ() {
-        if(state.curQ >= 3) { nextPilot(); return; }
-        const q = DB[Math.floor(Math.random() * DB.length)];
-        document.getElementById('quiz-ui').style.display = 'block';
+        if(state.curQ >= DB.length) { showFinal(); return; }
+        const q = DB[state.curQ];
+        document.getElementById('quiz-content').style.display = 'block';
         document.getElementById('feedback').style.display = 'none';
         document.getElementById('q-text').innerText = q.q;
+        document.getElementById('hud-q').innerText = (state.curQ + 1) + "/" + DB.length;
+        
         const box = document.getElementById('options-box');
         box.innerHTML = '';
         q.o.forEach((o, i) => {
-            const el = document.createElement('div');
-            el.className = 'option';
-            el.innerText = o;
-            el.onclick = () => check(i, q.c, q.e);
-            box.appendChild(el);
+            const btn = document.createElement('div');
+            btn.className = 'option';
+            btn.innerText = o;
+            btn.onclick = () => check(i, q.c);
+            box.appendChild(btn);
         });
-        startTimer();
     }
 
-    function startTimer() {
-        clearInterval(state.timer);
-        state.time = 10;
-        state.timer = setInterval(() => {
-            state.time -= 0.1;
-            document.getElementById('timer-bar').style.width = (state.time * 10) + "%";
-            if(state.time <= 0) check(-1, 0, "Zu langsam für die Elite.");
-        }, 100);
-    }
-
-    function check(idx, correct, fact) {
-        clearInterval(state.timer);
-        document.getElementById('quiz-ui').style.display = 'none';
+    function check(idx, correct) {
+        document.getElementById('quiz-content').style.display = 'none';
         document.getElementById('feedback').style.display = 'block';
-        const title = document.getElementById('fb-title');
-        document.getElementById('fb-fact').innerText = fact;
-
+        const status = document.getElementById('fb-status');
+        
         if(idx === correct) {
-            title.innerText = "EXCELLENT";
-            title.style.color = "var(--accent)";
-            state.players[state.curP].score += Math.round(state.time * 75);
-            updateTrack();
+            status.innerText = "PERFEKT";
+            status.style.color = "#d4af37";
+            state.score += 500;
+            // 3D Effekt bei Erfolg
+            car.scale.set(1.5, 1.5, 1.5);
+            setTimeout(() => car.scale.set(1, 1, 1), 500);
         } else {
-            title.innerText = "FAILED";
-            title.style.color = "#f00";
+            status.innerText = "ABSTURZ";
+            status.style.color = "#ff4444";
         }
-        document.getElementById('hud-speed').innerText = state.players[state.curP].score + " KM/H";
+        document.getElementById('hud-score').innerText = state.score;
     }
 
-    function handleNext() { state.curQ++; loadQ(); }
+    function nextAction() { state.curQ++; loadQ(); }
 
-    function updateTrack() {
-        state.players.forEach((p, i) => {
-            const car = document.getElementById('car-' + i);
-            car.style.left = Math.min((p.score / 1500) * 85 + 5, 90) + "%";
-        });
-    }
-
-    function nextPilot() {
-        state.curP++;
-        if(state.curP < state.players.length) {
-            alert("Nächster Pilot übernimmt.");
-            startTurn();
-        } else {
-            showLeader();
-        }
-    }
-
-    function showLeader() {
+    function showFinal() {
         nav('leader');
-        const list = document.getElementById('leaderboard-list');
-        const sorted = [...state.players].sort((a,b) => b.score - a.score);
-        list.innerHTML = sorted.map((p, i) => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                <span><b>#${i+1}</b> ${p.name}</span>
-                <span class="hud-val">${p.score} KM/H</span>
+        document.getElementById('leader-list').innerHTML = `
+            <div class="bento-card" style="text-align: center;">
+                <h3 style="color: var(--gold-solid)">DEIN STATUS</h3>
+                <h1 style="font-family: Orbitron; font-size: 3rem;">${state.score}</h1>
+                <p>KM/H ELITE SPEED</p>
             </div>
-        `).join('');
+        `;
     }
-</script>
 
+    // Init 3D & Window Resize
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    init3D();
+</script>
 </body>
 </html>
