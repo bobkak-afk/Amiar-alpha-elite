@@ -4,189 +4,194 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>AMIAR KEMPF | AURA VELOCITY</title>
+    <title>AMIAR KEMPF | INFINITY OBSIDIAN</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@100;300;600;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;900&family=Montserrat:wght@100;300;600&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --aura-gold: radial-gradient(circle, #f7ef8a 0%, #d4af37 40%, #ae8625 100%);
-            --text-gold: linear-gradient(180deg, #f7ef8a 0%, #d4af37 100%);
-            --bg-obsidian: #030303;
-            --glass-ultra: rgba(255, 255, 255, 0.015);
-            --border-gold: rgba(212, 175, 55, 0.2);
+            --obsidian: #050505;
+            --gold: linear-gradient(135deg, #c5a059 0%, #f3d091 50%, #8a6d3b 100%);
+            --gold-glow: rgba(197, 160, 89, 0.4);
+            --glass: rgba(255, 255, 255, 0.02);
+            --border: rgba(255, 255, 255, 0.05);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            background: var(--bg-obsidian); color: white; height: 100vh; overflow: hidden;
+            background-color: var(--obsidian); color: white; height: 100vh; overflow: hidden;
             display: flex; justify-content: center; align-items: center;
         }
 
-        /* --- TRAUMHAFTES HINTERGRUND-LICHT --- */
-        .aura-bg {
-            position: absolute; width: 150vw; height: 150vh;
-            background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
-            z-index: 0; animation: pulseAura 12s infinite alternate ease-in-out;
-        }
-        @keyframes pulseAura { 
-            0% { transform: translate(-10%, -10%) scale(1); opacity: 0.5; }
-            100% { transform: translate(5%, 5%) scale(1.2); opacity: 0.8; }
+        /* --- DYNAMISCHER HINTERGRUND --- */
+        .bg-fx {
+            position: absolute; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% -20%, #1a1a1a, var(--obsidian));
+            z-index: -1;
         }
 
+        .aura {
+            position: absolute; width: 300px; height: 300px;
+            background: var(--gold-glow); filter: blur(120px);
+            border-radius: 50%; top: 10%; left: 50%; transform: translateX(-50%);
+            animation: pulse 8s infinite alternate; z-index: -1;
+        }
+
+        @keyframes pulse { from { opacity: 0.3; transform: translateX(-50%) scale(1); } to { opacity: 0.6; transform: translateX(-50%) scale(1.3); } }
+
+        /* --- APP CONTAINER --- */
         .app-frame {
-            width: 100%; max-width: 450px; height: 100vh;
-            background: rgba(0,0,0,0.2); backdrop-filter: blur(50px);
-            position: relative; z-index: 10; display: flex; flex-direction: column;
-            border-left: 1px solid rgba(255,255,255,0.03); border-right: 1px solid rgba(255,255,255,0.03);
+            width: 100%; max-width: 420px; height: 100vh;
+            display: flex; flex-direction: column; position: relative;
+            backdrop-filter: blur(10px);
         }
 
-        /* --- HEADER & BRANDING --- */
-        .header { padding: 70px 40px 30px; text-align: left; }
-        .brand-name { 
-            font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 400; letter-spacing: 12px;
-            background: var(--text-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            opacity: 0.9;
+        /* --- ELEGANT HEADER --- */
+        .header {
+            padding: 80px 40px 40px; text-align: center;
         }
-        .edition-tag { 
-            font-size: 0.6rem; letter-spacing: 6px; color: #666; margin-top: 10px; 
-            text-transform: uppercase; font-weight: 300; 
+        .brand-title {
+            font-family: 'Cinzel Decorative', serif; font-size: 1.8rem; font-weight: 900;
+            background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 8px; margin-bottom: 5px;
         }
+        .brand-sub { font-size: 0.55rem; letter-spacing: 5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
 
-        /* --- NAVIGATION (MINIMALISTISCH) --- */
-        .nav-minimal {
-            position: absolute; bottom: 40px; left: 0; right: 0;
-            display: flex; justify-content: center; gap: 40px; z-index: 100;
-        }
-        .nav-dot {
-            width: 8px; height: 8px; background: rgba(255,255,255,0.1);
-            border-radius: 50%; transition: 0.5s; cursor: pointer; border: 1px solid transparent;
-        }
-        .nav-dot.active { background: var(--gold-solid); width: 30px; border-radius: 4px; box-shadow: 0 0 15px #d4af37; }
-
-        /* --- CONTENT SCREENS --- */
+        /* --- SCREEN ENGINE --- */
         .screen { display: none; flex: 1; padding: 0 40px; flex-direction: column; justify-content: center; }
-        .screen.active { display: flex; animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+        .active { display: flex; animation: fadeIn 1s cubic-bezier(0.23, 1, 0.32, 1); }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
 
-        /* --- LUXURY CARDS --- */
-        .luxury-card {
-            background: var(--glass-ultra); border: 1px solid var(--border-gold);
-            border-radius: 40px; padding: 35px; position: relative;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4); margin-bottom: 30px;
+        /* --- LUXUS CARDS --- */
+        .glass-card {
+            background: var(--glass); border: 1px solid var(--border);
+            border-radius: 30px; padding: 35px; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 40px;
+            position: relative; overflow: hidden;
         }
-
-        /* --- BUTTONS (AURA STYLE) --- */
-        .btn-aura {
-            background: transparent; border: 1px solid var(--border-gold);
-            padding: 24px; border-radius: 50px; color: #fff; font-size: 0.8rem;
-            letter-spacing: 4px; text-transform: uppercase; font-weight: 600;
-            cursor: pointer; position: relative; transition: 0.5s; overflow: hidden;
-        }
-        .btn-aura::before {
+        .glass-card::before {
             content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
-            transition: 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            animation: shine 6s infinite;
         }
-        .btn-aura:hover::before { left: 100%; }
-        .btn-aura:active { transform: scale(0.98); background: rgba(212, 175, 55, 0.05); }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+
+        /* --- PREMIUM BUTTONS --- */
+        .btn-infinity {
+            background: transparent; border: 1px solid #c5a059;
+            color: #f3d091; padding: 22px; border-radius: 15px;
+            font-size: 0.75rem; letter-spacing: 4px; font-weight: 600;
+            text-transform: uppercase; cursor: pointer; transition: 0.5s;
+            position: relative; overflow: hidden;
+        }
+        .btn-infinity:hover { background: rgba(197, 160, 89, 0.1); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); }
+        .btn-infinity:active { transform: scale(0.96); }
 
         /* --- QUIZ UI --- */
-        .q-text { font-size: 1.8rem; font-weight: 100; color: #eee; line-height: 1.3; margin-bottom: 50px; text-align: left; }
-        .opt-row {
-            padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
-            cursor: pointer; font-size: 1.1rem; font-weight: 300; transition: 0.3s;
-            display: flex; justify-content: space-between; align-items: center;
+        .q-text { font-size: 1.6rem; font-weight: 100; line-height: 1.4; margin-bottom: 50px; text-align: center; color: #fff; }
+        
+        .option-item {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            padding: 20px; border-radius: 20px; margin-bottom: 15px; cursor: pointer;
+            text-align: center; transition: 0.3s; font-weight: 300; font-size: 1rem;
         }
-        .opt-row:hover { color: #d4af37; padding-left: 10px; }
-        .opt-row span { font-family: 'Cinzel'; font-size: 0.7rem; opacity: 0.3; }
+        .option-item:hover { border-color: #c5a059; background: rgba(197, 160, 89, 0.05); color: #f3d091; }
 
-        /* --- FEEDBACK & HUD --- */
-        .hud-display { position: absolute; top: 160px; right: 40px; text-align: right; }
-        .hud-num { font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.03); position: absolute; top: -40px; right: 0; }
-        .hud-label { font-size: 0.6rem; letter-spacing: 3px; color: var(--gold-solid); }
+        /* --- HUD ELEMENTS --- */
+        .hud-overlay { position: absolute; top: 180px; width: 100%; text-align: center; pointer-events: none; }
+        .speed-val { font-family: 'Cinzel Decorative'; font-size: 3.5rem; opacity: 0.05; font-weight: 900; }
 
-        /* --- FOOTER CREDITS --- */
-        .footer-credits {
-            position: absolute; bottom: 80px; width: 100%; text-align: center;
-            font-size: 0.55rem; letter-spacing: 3px; color: #444; font-weight: 300;
+        /* --- FOOTER & NAV --- */
+        .footer-sig {
+            position: absolute; bottom: 40px; width: 100%; text-align: center;
+            font-size: 0.5rem; letter-spacing: 3px; color: rgba(255,255,255,0.2);
             text-transform: uppercase;
         }
+
+        .nav-bar {
+            position: absolute; bottom: 80px; width: 100%; display: flex;
+            justify-content: center; gap: 30px;
+        }
+        .nav-icon { width: 40px; height: 1px; background: rgba(255,255,255,0.1); transition: 0.5s; }
+        .nav-icon.active { background: #c5a059; width: 80px; box-shadow: 0 0 15px #c5a059; }
 
     </style>
 </head>
 <body>
 
-<div class="aura-bg"></div>
+<div class="bg-fx"></div>
+<div class="aura"></div>
 
 <div class="app-frame">
     <header class="header">
-        <div class="brand-name">AMIAR</div>
-        <div class="brand-name" style="margin-top: -10px;">KEMPF</div>
-        <div class="edition-tag">Aura Velocity • V4.0</div>
+        <h1 class="brand-title">AMIAR</h1>
+        <h1 class="brand-title" style="margin-top: -15px;">KEMPF</h1>
+        <p class="brand-sub">Infinity Velocity • Ultra Luxe</p>
     </header>
 
-    <div class="hud-display">
-        <div class="hud-num" id="bg-score">0000</div>
-        <div class="hud-label" id="cur-speed">0 KM/H</div>
+    <div class="hud-overlay">
+        <div class="speed-val" id="hud-bg">0000</div>
     </div>
 
     <div id="screen-home" class="screen active">
-        <div class="luxury-card">
-            <h2 style="font-weight: 100; letter-spacing: 2px; margin-bottom: 15px;">Willkommen im <br><b style="font-weight: 600;">Elite-Cockpit</b></h2>
-            <p style="font-size: 0.85rem; opacity: 0.4; line-height: 1.8;">Das System wurde für Amiar & Wowa optimiert. Starten Sie die Engine für die finale Performance.</p>
+        <div class="glass-card">
+            <h3 style="font-weight: 100; letter-spacing: 2px; margin-bottom: 10px;">WILLKOMMEN</h3>
+            <p style="font-size: 0.8rem; opacity: 0.4; line-height: 1.8;">Initialisierung des Elite-Moduls. Bereit für die Performance Ihres Lebens?</p>
         </div>
-        <button class="btn-aura" onclick="startGame()">Engine starten</button>
+        <button class="btn-infinity" onclick="startGame()">System Aktivieren</button>
     </div>
 
     <div id="screen-race" class="screen">
-        <div id="quiz-flow">
-            <h2 class="q-text" id="q-text">Lade Algorithmen...</h2>
-            <div id="options-list"></div>
+        <div id="quiz-ui">
+            <h2 class="q-text" id="q-text">Lade Sektor...</h2>
+            <div id="options-container"></div>
         </div>
-        
-        <div id="feedback" style="display:none; text-align: left;">
-            <h1 id="fb-title" style="font-family: Cinzel; font-size: 2.5rem; margin-bottom: 10px;"></h1>
-            <p id="fb-fact" style="font-size: 0.9rem; opacity: 0.4; margin-bottom: 50px;"></p>
-            <button class="btn-aura" style="width: 100%;" onclick="nextQuestion()">Nächster Sektor</button>
+
+        <div id="feedback" style="display:none; text-align:center;">
+            <h1 id="fb-status" style="font-family: 'Cinzel Decorative'; font-size: 2rem; margin-bottom: 10px;"></h1>
+            <p id="fb-desc" style="font-size: 0.8rem; opacity: 0.4; margin-bottom: 40px;"></p>
+            <button class="btn-infinity" style="width: 100%;" onclick="nextQuestion()">Nächster Sektor</button>
         </div>
     </div>
 
     <div id="screen-leader" class="screen">
-        <h2 style="font-family: Cinzel; font-size: 1.5rem; margin-bottom: 40px; letter-spacing: 5px; text-align: center;">HALL OF FAME</h2>
-        <div id="ranking"></div>
-        <button class="btn-aura" style="margin-top: 40px;" onclick="location.reload()">System Reset</button>
+        <div class="glass-card">
+            <h4 style="font-weight: 100; opacity: 0.5; margin-bottom: 15px;">FINALES RESULTAT</h4>
+            <h2 id="final-score" style="font-family: 'Cinzel Decorative'; font-size: 3rem; color: #f3d091;">0</h2>
+            <p style="letter-spacing: 4px; font-size: 0.6rem; margin-top: 10px;">KM/H VELOCITY</p>
+        </div>
+        <button class="btn-infinity" onclick="location.reload()">System Neustart</button>
     </div>
 
-    <div class="footer-credits">Produziert von Wowa & Amiar Kempf</div>
+    <div class="nav-bar">
+        <div class="nav-icon active" id="dot-home"></div>
+        <div class="nav-icon" id="dot-race"></div>
+        <div class="nav-icon" id="dot-leader"></div>
+    </div>
 
-    <nav class="nav-minimal">
-        <div class="nav-dot active" id="dot-home" onclick="nav('home')"></div>
-        <div class="nav-dot" id="dot-race"></div>
-        <div class="nav-dot" id="dot-leader" onclick="nav('leader')"></div>
-    </nav>
+    <footer class="footer-sig">Produziert von Wowa & Amiar Kempf</footer>
 </div>
 
 <script>
     const DB = [
-        { q: "Was ist das Geheimnis wahrer Elite-Performance?", o: ["Viel Hubraum", "Perfekte Aerodynamik", "Der Wille zum Sieg", "Präzise Technik"], c: 2, e: "Die richtige Einstellung entscheidet über das Ziel." },
-        { q: "Welche Stadt verkörpert Amiar's Speed?", o: ["Mailand", "Dubai", "Monaco", "Singapur"], c: 1, e: "Dubai steht für grenzenlosen Luxus und Tempo." },
-        { q: "Was definiert die Aura Edition?", o: ["Schönheit", "Exzellenz", "Innovation", "Alles zusammen"], c: 3, e: "Ein Erlebnis ohne Kompromisse." }
+        { q: "Was definiert wahren Luxus?", o: ["Zeit", "Geld", "Präzision", "Exklusivität"], c: 3, e: "Wahrer Luxus ist das, was man nicht kaufen kann." },
+        { q: "Amiar Kempf Edition: Was ist das Ziel?", o: ["Top Speed", "Perfektion", "Dominanz", "Alles davon"], c: 3, e: "Keine Kompromisse in der Performance." },
+        { q: "Welches Material glänzt am stärksten?", o: ["Carbon", "Obsidian", "Platin", "Gold"], c: 1, e: "Obsidian spiegelt die Seele der App wider." }
     ];
 
     let state = { score: 0, curQ: 0 };
 
     function nav(s) {
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+        document.querySelectorAll('.nav-icon').forEach(d => d.classList.remove('active'));
         document.getElementById('screen-' + s).classList.add('active');
         document.getElementById('dot-' + s).classList.add('active');
     }
 
     function startGame() {
-        state.score = 0;
-        state.curQ = 0;
+        state.score = 0; state.curQ = 0;
         nav('race');
         loadQuestion();
     }
@@ -194,37 +199,36 @@
     function loadQuestion() {
         if(state.curQ >= DB.length) { showFinal(); return; }
         const q = DB[state.curQ];
-        document.getElementById('quiz-flow').style.display = 'block';
+        document.getElementById('quiz-ui').style.display = 'block';
         document.getElementById('feedback').style.display = 'none';
         document.getElementById('q-text').innerText = q.q;
         
-        const list = document.getElementById('options-list');
-        list.innerHTML = '';
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
         q.o.forEach((o, i) => {
-            const row = document.createElement('div');
-            row.className = 'opt-row';
-            row.innerHTML = `${o} <span>SEKTOR ${i+1}</span>`;
-            row.onclick = () => checkAnswer(i, q.c, q.e);
-            list.appendChild(row);
+            const div = document.createElement('div');
+            div.className = 'option-item';
+            div.innerText = o;
+            div.onclick = () => check(i, q.c, q.e);
+            container.appendChild(div);
         });
     }
 
-    function checkAnswer(idx, correct, fact) {
-        document.getElementById('quiz-flow').style.display = 'none';
+    function check(idx, correct, fact) {
+        document.getElementById('quiz-ui').style.display = 'none';
         document.getElementById('feedback').style.display = 'block';
-        const title = document.getElementById('fb-title');
-        document.getElementById('fb-fact').innerText = fact;
+        const status = document.getElementById('fb-status');
+        document.getElementById('fb-desc').innerText = fact;
 
         if(idx === correct) {
-            title.innerText = "EXZELLENT";
-            title.style.color = "#d4af37";
-            state.score += 750;
+            status.innerText = "EXZELLENT";
+            status.style.color = "#f3d091";
+            state.score += 850;
         } else {
-            title.innerText = "REDUZIERT";
-            title.style.color = "#444";
+            status.innerText = "ABGELEHNT";
+            status.style.color = "#444";
         }
-        document.getElementById('cur-speed').innerText = state.score + " KM/H";
-        document.getElementById('bg-score').innerText = state.score.toString().padStart(4, '0');
+        document.getElementById('hud-bg').innerText = state.score.toString().padStart(4, '0');
     }
 
     function nextQuestion() {
@@ -234,13 +238,7 @@
 
     function showFinal() {
         nav('leader');
-        document.getElementById('ranking').innerHTML = `
-            <div class="luxury-card" style="text-align: center;">
-                <h4 style="font-weight: 300; opacity: 0.5; margin-bottom: 10px;">FINALE GESCHWINDIGKEIT</h4>
-                <h1 style="font-family: Cinzel; font-size: 3.5rem; color: #d4af37;">${state.score}</h1>
-                <p style="letter-spacing: 5px; opacity: 0.3; margin-top: 10px;">KM/H</p>
-            </div>
-        `;
+        document.getElementById('final-score').innerText = state.score;
     }
 </script>
 
