@@ -2,288 +2,189 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AMIAR KEMPF | SCUDERIA INFINITY 3D</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Plus+Jakarta+Sans:wght@300;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AMIAR KEMPF | SCUDERIA ARCADE</title>
     <style>
-        :root {
-            --gold: linear-gradient(135deg, #d4af37, #f7ef8a, #ae8625);
-            --red: #cc0000;
-            --glass: rgba(0, 0, 0, 0.7);
-            --border: rgba(212, 175, 55, 0.3);
-        }
-
-        body { margin: 0; overflow: hidden; background: #000; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
-
-        /* Luxus HUD */
-        #hud-top {
-            position: absolute; top: 40px; left: 20px; right: 20px;
-            display: flex; justify-content: space-between; z-index: 100;
-            pointer-events: none;
-        }
-        .glass-panel {
-            background: var(--glass); border: 1px solid var(--border);
-            padding: 15px 25px; border-radius: 20px; backdrop-filter: blur(15px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .brand { font-family: 'Orbitron'; font-weight: 900; letter-spacing: 4px; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        body { margin: 0; overflow: hidden; background: #050505; font-family: sans-serif; }
+        canvas { display: block; }
         
-        /* Speedometer */
-        #speedo {
-            position: absolute; bottom: 40px; right: 30px; width: 120px; height: 120px;
-            border: 4px solid var(--border); border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: var(--glass); z-index: 100;
+        /* Luxus UI - Inspiriert von deiner neuen Design-Richtung */
+        #ui {
+            position: absolute; top: 30px; left: 30px;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(15px);
+            padding: 20px; border-radius: 15px; border: 1px solid rgba(212, 175, 55, 0.3);
+            color: white; z-index: 10;
         }
-        .speed-val { font-family: 'Orbitron'; font-size: 28px; font-weight: 900; color: #f7ef8a; }
+        .brand { font-weight: 900; letter-spacing: 3px; color: #d4af37; margin-bottom: 5px; }
+        .stats { font-family: monospace; font-size: 1.2rem; color: #f7ef8a; }
 
-        /* Controls */
-        #controls {
-            position: absolute; bottom: 40px; left: 30px;
-            display: flex; gap: 20px; align-items: center; z-index: 100;
-        }
-        .btn-circle {
-            width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border);
-            background: var(--glass); color: white; font-weight: 900; cursor: pointer;
-            backdrop-filter: blur(10px); transition: 0.2s; pointer-events: auto;
-        }
-        .btn-circle:active { transform: scale(0.9); border-color: #f7ef8a; }
-        .btn-item { background: var(--gold); color: black; border: none; }
-
-        #steering-wheel {
-            width: 150px; height: 150px; border: 8px solid var(--border);
-            border-radius: 50%; transition: transform 0.1s; pointer-events: auto;
-        }
-
-        #drift-bar {
-            position: absolute; bottom: 170px; left: 30px; width: 150px; height: 6px;
-            background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;
-        }
-        #drift-fill { width: 0%; height: 100%; background: var(--gold); transition: width 0.1s; }
-
-        /* Overlay */
-        #overlay {
-            position: fixed; inset: 0; background: #000; z-index: 1000;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: 0.5s;
-        }
-        .start-btn {
-            background: var(--gold); border: none; padding: 20px 60px;
-            border-radius: 50px; font-family: 'Orbitron'; font-weight: 900;
-            cursor: pointer; font-size: 20px; margin-top: 30px;
+        /* Steuerungseinblendung für Mobile */
+        #mobile-hint {
+            position: absolute; bottom: 30px; width: 100%; text-align: center;
+            color: rgba(255,255,255,0.4); pointer-events: none;
         }
     </style>
 </head>
 <body>
 
-    <div id="overlay">
-        <h1 class="brand" style="font-size: 40px;">SCUDERIA INFINITY</h1>
-        <p style="opacity: 0.6; letter-spacing: 2px;">PRODUZIERT VON WOWA & AMIAR KEMPF</p>
-        <button class="start-btn" onclick="startRace()">START MISSION</button>
+    <div id="ui">
+        <div class="brand">AMIAR KEMPF | SCUDERIA</div>
+        <div class="stats">SPEED: <span id="kmh">0</span> KM/H</div>
+        <div style="font-size: 0.7rem; opacity: 0.5; margin-top: 10px;">WOWA EDITION V1.0</div>
     </div>
 
-    <div id="hud-top">
-        <div class="glass-panel">
-            <div class="brand">AMIAR KEMPF</div>
-            <div style="font-size: 10px; opacity: 0.5; letter-spacing: 2px;">VELOCITY EDITION</div>
-        </div>
-        <div class="glass-panel" style="text-align: right;">
-            <div id="lap-display">RUNDE 1 / 3</div>
-            <div id="pos-display" style="color: #f7ef8a; font-weight: 800;">POS: 1 / 4</div>
-        </div>
-    </div>
+    <div id="mobile-hint">NUTZE WASD ODER PFEILTASTEN</div>
 
-    <div id="drift-bar"><div id="drift-fill"></div></div>
+    <canvas id="gameCanvas"></canvas>
 
-    <div id="controls">
-        <input type="range" id="steer-input" min="-1" max="1" step="0.1" value="0" style="display:none">
-        <div id="steering-wheel" style="background: radial-gradient(circle, transparent 40%, rgba(212,175,55,0.1) 100%);"></div>
-        <button class="btn-circle btn-item" id="item-trigger">ITEM</button>
-        <button class="btn-circle" id="drift-trigger">DRIFT</button>
-    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
-    <div id="speedo">
-        <div class="speed-val" id="speed-val">0</div>
-        <div style="font-size: 10px; opacity: 0.5;">KM/H</div>
-    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x050505);
+        scene.fog = new THREE.Fog(0x050505, 10, 80);
 
-    <script type="importmap">
-        { "imports": { "three": "https://unpkg.com/three@0.150.0/build/three.module.js" } }
-    </script>
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
 
-    <script type="module">
-        import * as THREE from 'three';
+        // Licht für Luxus-Reflektionen
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const light = new THREE.PointLight(0xd4af37, 2, 50);
+        light.position.set(0, 10, 0);
+        scene.add(light);
 
-        // --- KONFIGURATION ---
-        let scene, camera, renderer, playerCar, clock;
-        let speed = 0, rotation = 0, steer = 0;
-        let isDrifting = false, driftPower = 0;
-        let currentLap = 1, raceActive = false;
-        
-        const config = {
-            maxSpeed: 0.8,
-            accel: 0.005,
-            decel: 0.002,
-            turnSpeed: 0.04
-        };
+        // --- RENNSTRECKE (Boden) ---
+        const groundGeo = new THREE.PlaneGeometry(20, 1000);
+        const groundMat = new THREE.MeshStandardMaterial({ 
+            color: 0x111111, 
+            roughness: 0.1, 
+            metalness: 0.5 
+        });
+        const ground = new THREE.Mesh(groundGeo, groundMat);
+        ground.rotation.x = -Math.PI / 2;
+        scene.add(ground);
 
-        function init() {
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050505);
-            scene.fog = new THREE.Fog(0x050505, 40, 90);
+        // Goldene Seitenlinien
+        const lineLeft = new THREE.Mesh(new THREE.PlaneGeometry(0.2, 1000), new THREE.MeshBasicMaterial({color: 0xd4af37}));
+        lineLeft.rotation.x = -Math.PI / 2;
+        lineLeft.position.set(-5, 0.01, 0);
+        scene.add(lineLeft);
 
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.toneMapping = THREE.ReinhardToneMapping;
-            document.body.appendChild(renderer.domElement);
+        const lineRight = lineLeft.clone();
+        lineRight.position.x = 5;
+        scene.add(lineRight);
 
-            clock = new THREE.Clock();
+        // --- DAS AUTO (Ferrari Style) ---
+        const carGroup = new THREE.Group();
+        const body = new THREE.Mesh(
+            new THREE.BoxGeometry(1.2, 0.5, 2.5),
+            new THREE.MeshStandardMaterial({ color: 0xcc0000, metalness: 0.8, roughness: 0.2 })
+        );
+        body.position.y = 0.5;
+        carGroup.add(body);
 
-            // Licht
-            const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6);
-            scene.add(hemi);
-            const sun = new THREE.DirectionalLight(0xd4af37, 1.5);
-            sun.position.set(10, 20, 10);
-            scene.add(sun);
+        const cockpit = new THREE.Mesh(
+            new THREE.BoxGeometry(0.9, 0.4, 0.8),
+            new THREE.MeshStandardMaterial({ color: 0x000000 })
+        );
+        cockpit.position.set(0, 0.8, 0.2);
+        carGroup.add(cockpit);
 
-            createTrack();
-            createPlayer();
-            animate();
+        scene.add(carGroup);
+
+        // --- HINDERNISSE (Basierend auf dem Block-System im Bild) ---
+        const obstacles = [];
+        function createObstacle(z) {
+            const geometry = new THREE.BoxGeometry(2, 1, 1);
+            const material = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            const block = new THREE.Mesh(geometry, material);
+            block.position.set((Math.random() - 0.5) * 8, 0.5, z);
+            scene.add(block);
+            obstacles.push(block);
         }
 
-        function createTrack() {
-            // Boden mit Carbon-Gitter-Struktur
-            const groundGeo = new THREE.PlaneGeometry(1000, 1000);
-            const groundMat = new THREE.MeshStandardMaterial({ 
-                color: 0x111111, 
-                roughness: 0.2, 
-                metalness: 0.5 
-            });
-            const ground = new THREE.Mesh(groundGeo, groundMat);
-            ground.rotation.x = -Math.PI / 2;
-            scene.add(ground);
-
-            // Rennstrecke (Glänzender Asphalt)
-            const trackPath = new THREE.Shape();
-            trackPath.absellipse(0, 0, 60, 40, 0, Math.PI * 2, false);
-            const trackGeo = new THREE.ExtrudeGeometry(trackPath, { depth: 0.1, bevelEnabled: false });
-            const trackMat = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.1 });
-            const track = new THREE.Mesh(trackGeo, trackMat);
-            track.rotation.x = -Math.PI / 2;
-            track.position.y = 0.01;
-            scene.add(track);
-
-            // Goldene Leitlinien
-            const lineGeo = new THREE.RingGeometry(59.5, 60.5, 64);
-            const lineMat = new THREE.MeshBasicMaterial({ color: 0xd4af37 });
-            const line = new THREE.Mesh(lineGeo, lineMat);
-            line.rotation.x = -Math.PI / 2;
-            line.position.y = 0.05;
-            scene.add(line);
+        for(let i = 0; i < 20; i++) {
+            createObstacle(-i * 30);
         }
 
-        function createPlayer() {
-            playerCar = new THREE.Group();
-            
-            // Karosserie (Luxus Sportwagen Form)
-            const bodyGeo = new THREE.BoxGeometry(1.2, 0.5, 2.5);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xcc0000, metalness: 0.9, roughness: 0.1 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 0.4;
-            playerCar.add(body);
+        // --- STEUERUNG (Übernommen und verbessert aus deinem Bild) ---
+        const controls = { forward: false, backward: false, left: false, right: false };
+        let speed = 0;
+        let kmh = 0;
 
-            // Glas
-            const glassGeo = new THREE.BoxGeometry(1.0, 0.4, 1.0);
-            const glassMat = new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 1, roughness: 0 });
-            const glass = new THREE.Mesh(glassGeo, glassMat);
-            glass.position.set(0, 0.7, 0.2);
-            playerCar.add(glass);
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'w') controls.forward = true;
+            if (e.key.toLowerCase() === 's') controls.backward = true;
+            if (e.key.toLowerCase() === 'a') controls.left = true;
+            if (e.key.toLowerCase() === 'd') controls.right = true;
+        });
 
-            // Unterbodenbeleuchtung (Neon Gold)
-            const neon = new THREE.PointLight(0xd4af37, 2, 5);
-            neon.position.y = 0.1;
-            playerCar.add(neon);
+        document.addEventListener('keyup', (e) => {
+            if (e.key.toLowerCase() === 'w') controls.forward = false;
+            if (e.key.toLowerCase() === 's') controls.backward = false;
+            if (e.key.toLowerCase() === 'a') controls.left = false;
+            if (e.key.toLowerCase() === 'd') controls.right = false;
+        });
 
-            scene.add(playerCar);
-        }
-
-        // Steuerung Logic
-        const keys = {};
-        window.onkeydown = (e) => keys[e.code] = true;
-        window.onkeyup = (e) => keys[e.code] = false;
-
-        function updatePhysics() {
-            if(!raceActive) return;
-
-            // Gas / Bremse
-            if(keys['ArrowUp'] || keys['KeyW']) speed += config.accel;
-            else speed -= config.decel;
-
-            speed = Math.max(0, Math.min(speed, config.maxSpeed));
-
-            // Lenkung
-            if(keys['ArrowLeft'] || keys['KeyA']) steer = THREE.MathUtils.lerp(steer, 1, 0.1);
-            else if(keys['ArrowRight'] || keys['KeyD']) steer = THREE.MathUtils.lerp(steer, -1, 0.1);
-            else steer = THREE.MathUtils.lerp(steer, 0, 0.1);
-
-            // Drift Logic
-            if(isDrifting && speed > 0.3) {
-                driftPower = THREE.MathUtils.lerp(driftPower, 100, 0.02);
-                rotation += steer * config.turnSpeed * 1.5;
-            } else {
-                rotation += steer * config.turnSpeed * (speed * 2);
-                driftPower = THREE.MathUtils.lerp(driftPower, 0, 0.1);
-            }
-
-            // Bewegung anwenden
-            playerCar.position.x += Math.sin(rotation) * speed;
-            playerCar.position.z += Math.cos(rotation) * speed;
-            playerCar.rotation.y = rotation;
-            
-            // Rad-Neigung (Visual)
-            playerCar.rotation.z = -steer * 0.1;
-
-            // Kamera-Follow (Smooth)
-            const camOffset = new THREE.Vector3(-Math.sin(rotation) * 8, 4, -Math.cos(rotation) * 8);
-            camera.position.lerp(playerCar.position.clone().add(camOffset), 0.1);
-            camera.lookAt(playerCar.position);
-
-            // UI Update
-            document.getElementById('speed-val').innerText = Math.floor(speed * 400);
-            document.getElementById('drift-fill').style.width = driftPower + '%';
-            document.getElementById('steering-wheel').style.transform = `rotate(${-steer * 45}deg)`;
-        }
-
+        // --- GAME LOOP ---
         function animate() {
             requestAnimationFrame(animate);
-            updatePhysics();
+
+            // Beschleunigungs-Logik
+            if (controls.forward) speed += 0.005;
+            else speed *= 0.98; // Rollen lassen
+
+            // Lenkung
+            if (controls.left) carGroup.position.x -= 0.15 * (speed * 2);
+            if (controls.right) carGroup.position.x += 0.15 * (speed * 2);
+
+            // Bewegung des Autos (Relativ zur Welt)
+            ground.position.z += speed * 10;
+            lineLeft.position.z += speed * 10;
+            lineRight.position.z += speed * 10;
+
+            // Hindernisse bewegen (Endlos-Schleife)
+            obstacles.forEach(obs => {
+                obs.position.z += speed * 10;
+                if (obs.position.z > 10) {
+                    obs.position.z = -500;
+                    obs.position.x = (Math.random() - 0.5) * 8;
+                }
+                
+                // Einfache Kollision
+                if (Math.abs(carGroup.position.z - obs.position.z) < 1.5 && 
+                    Math.abs(carGroup.position.x - obs.position.x) < 1.5) {
+                    speed = 0; // Crash!
+                }
+            });
+
+            // Boden zurücksetzen für Endlos-Effekt
+            if (ground.position.z > 500) ground.position.z = 0;
+
+            // Kamera-Position (Verfolgermodus)
+            camera.position.set(carGroup.position.x, 3, 7);
+            camera.lookAt(carGroup.position.x, 1, carGroup.position.z - 5);
+
+            // UI Update
+            kmh = Math.floor(speed * 1000);
+            document.getElementById('kmh').innerText = kmh;
+
             renderer.render(scene, camera);
         }
 
-        // Mobile Controls
-        const driftBtn = document.getElementById('drift-trigger');
-        driftBtn.onpointerdown = () => isDrifting = true;
-        driftBtn.onpointerup = () => {
-            if(driftPower > 80) speed += 0.3; // Boost
-            isDrifting = false;
-        };
+        animate();
 
-        window.startRace = () => {
-            document.getElementById('overlay').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('overlay').style.display = 'none';
-                raceActive = true;
-            }, 500);
-        };
-
+        // Resize Handling
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        init();
     </script>
 </body>
 </html>
