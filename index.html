@@ -6,108 +6,224 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>SCUDERIA INFINITY</title>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            margin: 0; background: #000; overflow: hidden; 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            user-select: none; -webkit-user-select: none;
-        }
+        :root { --gold: #d4af37; --red: #cc0000; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: #000; color: white; font-family: 'Orbitron', sans-serif; overflow: hidden; height: 100vh; }
+
+        /* UI OVERLAYS */
+        #ui-layer { position: absolute; inset: 0; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 1s; }
+        .hud-panel { position: absolute; top: env(safe-area-inset-top, 40px); left: 20px; background: rgba(0,0,0,0.7); padding: 15px; border-radius: 15px; border: 1px solid rgba(212,175,55,0.3); }
+        .timer-panel { position: absolute; top: env(safe-area-inset-top, 40px); right: 20px; text-align: right; }
+        .speed-panel { position: absolute; bottom: 40px; right: 20px; text-align: right; }
         
-        /* HUD Design */
-        #ui {
-            position: absolute; top: env(safe-area-inset-top, 20px); 
-            left: 20px; z-index: 10; pointer-events: none;
-        }
-        .speed { font-size: 2.5rem; font-weight: 900; color: #d4af37; }
+        #speed-val { font-size: 3rem; color: var(--gold); line-height: 1; }
+        #timer-val { font-size: 2.5rem; color: var(--red); }
+        .label { font-size: 0.6rem; letter-spacing: 2px; opacity: 0.7; text-transform: uppercase; }
 
-        /* Touch-Zonen (Unsichtbare Steuerung) */
-        #touch-left { position: absolute; left: 0; top: 0; width: 30%; height: 100%; z-index: 20; }
-        #touch-right { position: absolute; right: 30%; top: 0; width: 40%; height: 100%; z-index: 20; }
-        #touch-gas { position: absolute; right: 0; top: 0; width: 30%; height: 100%; z-index: 20; background: rgba(212,175,55,0.05); }
+        /* SCREENS */
+        .screen { position: fixed; inset: 0; background: #000; z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .btn { background: none; border: 2px solid var(--gold); color: var(--gold); padding: 15px 40px; font-family: 'Orbitron'; font-size: 1.2rem; cursor: pointer; margin-top: 30px; border-radius: 50px; }
+        .btn:active { background: var(--gold); color: #000; }
 
-        #label { color: rgba(255,255,255,0.5); font-size: 0.7rem; letter-spacing: 2px; }
+        /* TOUCH CONTROLS (Hidden) */
+        #t-left { position: absolute; left: 0; top: 0; width: 40%; height: 100%; z-index: 50; }
+        #t-right { position: absolute; right: 0; top: 0; width: 40%; height: 100%; z-index: 50; }
+        #t-gas { position: absolute; left: 40%; top: 0; width: 20%; height: 100%; z-index: 50; }
+        
+        #level-up { position: fixed; top: 50%; width: 100%; text-align: center; font-size: 3rem; color: var(--gold); opacity: 0; transition: 0.5s; pointer-events: none; z-index: 200; }
     </style>
 </head>
 <body>
 
-    <div id="ui">
-        <div id="label">SCUDERIA INFINITY</div>
-        <div id="speedDisplay" class="speed">000</div>
+    <div id="start-screen" class="screen">
+        <h1 style="font-size: 3rem; letter-spacing: 10px; color: var(--gold);">SCUDERIA</h1>
+        <p style="opacity: 0.5; font-size: 0.8rem;">CHAMPIONSHIP EDITION</p>
+        <button class="btn" onclick="startGame()">MOTOR STARTEN</button>
     </div>
 
-    <div id="touch-left"></div> <div id="touch-right"></div> <div id="touch-gas"></div> <script type="module">
+    <div id="game-over" class="screen" style="display: none;">
+        <h1 style="color: var(--red); font-size: 3rem;">FINISH</h1>
+        <div id="final-stats" style="margin: 20px 0; font-size: 1.2rem;"></div>
+        <button class="btn" onclick="location.reload()">NEUSTART</button>
+    </div>
+
+    <div id="level-up">STAGE UP</div>
+
+    <div id="ui-layer">
+        <div class="hud-panel">
+            <div class="label">Fahrer</div>
+            <div style="font-size: 0.9rem;">AMIAR KEMPF</div>
+            <div class="label" style="margin-top: 10px;">Bestleistung</div>
+            <div id="highscore" style="color: var(--gold);">0m</div>
+        </div>
+        <div class="timer-panel">
+            <div class="label">Zeit</div>
+            <div id="timer-val">30</div>
+        </div>
+        <div class="speed-panel">
+            <div id="speed-val">0</div>
+            <div class="label">km/h Velocity</div>
+        </div>
+    </div>
+
+    <div id="t-left"></div><div id="t-gas"></div><div id="t-right"></div>
+
+    <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
-        renderer.setPixelRatio(window.devicePixelRatio); // Scharfes Bild auf iPhone
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        let scene, camera, renderer, car, checkpoint, grid;
+        let speed = 0, rot = 0, distance = 0, timeLeft = 30, stage = 1;
+        let input = { l: false, r: false, g: false }, gameActive = false;
+        let audioCtx, engineOsc, engineGain;
+        const obstacles = [];
 
-        // Licht & Welt
-        const sun = new THREE.DirectionalLight(0xd4af37, 1.5);
-        sun.position.set(5, 10, 7);
-        scene.add(sun);
-        scene.add(new THREE.AmbientLight(0x404040));
-        scene.add(new THREE.GridHelper(200, 50, 0x333333, 0x111111));
+        const stages = [
+            { grid: 0xd4af37, fog: 0x000000, name: "GOLD SECTOR" },
+            { grid: 0xff0000, fog: 0x100000, name: "RED NEON" },
+            { grid: 0x00ffff, fog: 0x000510, name: "CYBER BLUE" }
+        ];
 
-        // Das Auto
-        const car = new THREE.Group();
-        const body = new THREE.Mesh(
-            new THREE.BoxGeometry(1, 0.4, 2),
-            new THREE.MeshStandardMaterial({ color: 0xcc0000, metalness: 0.9, roughness: 0.1 })
-        );
-        body.position.y = 0.2;
-        car.add(body);
-        scene.add(car);
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            engineOsc = audioCtx.createOscillator();
+            engineOsc.type = 'sawtooth';
+            engineGain = audioCtx.createGain();
+            engineGain.gain.value = 0.05;
+            engineOsc.connect(engineGain);
+            engineGain.connect(audioCtx.destination);
+            engineOsc.start();
+        }
 
-        // Steuerungsvariablen
-        let speed = 0, rotation = 0;
-        let input = { left: false, right: false, gas: false };
+        function playSfx(f, t, d) {
+            if(!audioCtx) return;
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + d);
+        }
 
-        // Touch Events für iPhone
-        const setupTouch = (id, key) => {
-            const el = document.getElementById(id);
-            el.addEventListener('touchstart', (e) => { e.preventDefault(); input[key] = true; });
-            el.addEventListener('touchend', () => input[key] = false);
-        };
+        function init() {
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 5, 50);
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
 
-        setupTouch('touch-left', 'left');
-        setupTouch('touch-right', 'right');
-        setupTouch('touch-gas', 'gas');
+            // Car
+            car = new THREE.Group();
+            const body = new THREE.Mesh(new THREE.BoxGeometry(1, 0.4, 2.2), new THREE.MeshStandardMaterial({color: 0xcc0000, metalness: 0.9}));
+            body.position.y = 0.2;
+            car.add(body);
+            scene.add(car);
+
+            // Checkpoint
+            checkpoint = new THREE.Mesh(new THREE.TorusGeometry(5, 0.15, 16, 50), new THREE.MeshBasicMaterial({color: 0xd4af37}));
+            checkpoint.position.z = -100;
+            scene.add(checkpoint);
+
+            // Obstacles
+            for(let i=0; i<15; i++) {
+                const obs = new THREE.Mesh(new THREE.BoxGeometry(2, 5, 2), new THREE.MeshStandardMaterial({color: 0x222222}));
+                obs.position.set((Math.random()-0.5)*40, 2.5, -i*30 - 50);
+                scene.add(obs); obstacles.push(obs);
+            }
+
+            grid = new THREE.GridHelper(500, 100, 0xd4af37, 0x111111);
+            scene.add(grid);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+            const l = new THREE.PointLight(0xd4af37, 2, 20);
+            l.position.set(0, 5, 0); car.add(l);
+
+            // Events
+            const t = (id, k) => {
+                const el = document.getElementById(id);
+                el.ontouchstart = (e) => { e.preventDefault(); input[k] = true; };
+                el.ontouchend = () => input[k] = false;
+            };
+            t('t-left', 'l'); t('t-right', 'r'); t('t-gas', 'g');
+
+            document.getElementById('highscore').innerText = (localStorage.getItem('scuderia_best') || 0) + "m";
+            
+            update();
+            setInterval(() => { if(gameActive && timeLeft > 0) timeLeft--; }, 1000);
+        }
 
         function update() {
-            // iPhone Physik: Sanfteres Beschleunigen
-            if (input.gas) speed = THREE.MathUtils.lerp(speed, 0.7, 0.05);
-            else speed = THREE.MathUtils.lerp(speed, 0, 0.03);
+            if(!gameActive) return;
+            requestAnimationFrame(update);
 
-            let steerPower = input.gas ? 0.06 : 0.03; // Driften wenn Gas gegeben wird
-            if (input.left) rotation += steerPower;
-            if (input.right) rotation -= steerPower;
+            if(timeLeft <= 0) return endGame();
 
-            car.position.x += Math.sin(rotation) * speed;
-            car.position.z += Math.cos(rotation) * speed;
-            car.rotation.y = rotation;
+            // Drive
+            if(input.g) speed = THREE.MathUtils.lerp(speed, 0.85, 0.04);
+            else speed = THREE.MathUtils.lerp(speed, 0, 0.02);
 
-            // Kamera-Follow
-            const camOffset = new THREE.Vector3(-Math.sin(rotation) * 6, 3, -Math.cos(rotation) * 6);
-            camera.position.lerp(car.position.clone().add(camOffset), 0.1);
+            if(input.l) { rot += 0.045; car.rotation.z = 0.2; }
+            else if(input.r) { rot -= 0.045; car.rotation.z = -0.2; }
+            else { car.rotation.z = 0; }
+
+            car.position.x += Math.sin(rot) * speed;
+            car.position.z += Math.cos(rot) * speed;
+            car.rotation.y = rot;
+            distance += speed;
+
+            // Audio
+            if(engineOsc) engineOsc.frequency.setTargetAtTime(40 + (speed * 180), audioCtx.currentTime, 0.1);
+
+            // Collisions
+            if(car.position.distanceTo(checkpoint.position) < 7) {
+                timeLeft += 15; stage++;
+                playSfx(600, 'sine', 0.3);
+                checkpoint.position.z -= 250;
+                checkpoint.position.x = car.position.x + (Math.random()-0.5)*40;
+                const s = stages[(stage-1) % stages.length];
+                scene.fog.color.setHex(s.fog);
+                grid.material.color.setHex(s.grid);
+                document.getElementById('level-up').style.opacity = 1;
+                setTimeout(() => document.getElementById('level-up').style.opacity = 0, 1000);
+            }
+
+            obstacles.forEach(o => {
+                if(car.position.distanceTo(o.position) < 2.2) {
+                    speed = -0.3; playSfx(80, 'sawtooth', 0.2);
+                }
+                if(o.position.z > car.position.z + 20) {
+                    o.position.z = car.position.z - 300;
+                    o.position.x = car.position.x + (Math.random()-0.5)*60;
+                }
+            });
+
+            // Camera
+            camera.fov = 70 + (speed * 30); camera.updateProjectionMatrix();
+            const camPos = new THREE.Vector3(car.position.x - Math.sin(rot)*7, 3.5, car.position.z - Math.cos(rot)*7);
+            camera.position.lerp(camPos, 0.1);
             camera.lookAt(car.position);
 
-            document.getElementById('speedDisplay').innerText = Math.floor(speed * 400).toString().padStart(3, '0');
-
+            document.getElementById('speed-val').innerText = Math.floor(speed * 380);
+            document.getElementById('timer-val').innerText = timeLeft;
             renderer.render(scene, camera);
-            requestAnimationFrame(update);
         }
-        update();
 
-        // Resize bei Orientierungswechsel (Portrait/Landscape)
-        window.onresize = () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        function endGame() {
+            gameActive = false;
+            if(distance > (localStorage.getItem('scuderia_best') || 0)) localStorage.setItem('scuderia_best', Math.floor(distance));
+            document.getElementById('game-over').style.display = 'flex';
+            document.getElementById('final-stats').innerText = `Distanz: ${Math.floor(distance)}m`;
+            if(engineGain) engineGain.gain.value = 0;
+        }
+
+        window.startGame = () => {
+            initAudio(); init();
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('ui-layer').style.opacity = 1;
+            gameActive = true;
         };
     </script>
 </body>
