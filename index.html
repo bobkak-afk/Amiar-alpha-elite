@@ -5,296 +5,253 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>SCUDERIA INFINITY | PRESTIGE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;600&display=swap" rel="stylesheet">
+    <title>SCUDERIA PRESTIGE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --gold: #d4af37;
-            --gold-bright: #f7ef8a;
-            --carbon: #0a0a0a;
-            --red: #ff0000;
-        }
-
+        :root { --gold: #c5a059; --dark: #050505; --accent: #ff0000; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: var(--carbon); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
+        body { background: var(--dark); color: white; font-family: 'Montserrat', sans-serif; overflow: hidden; height: 100vh; }
 
-        /* --- PRESTIGE MENU --- */
-        .overlay {
+        /* LUXURY LOADING/MENU OVERLAY */
+        #menu {
             position: fixed; inset: 0; z-index: 1000;
-            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            background: radial-gradient(circle at center, #111 0%, #000 100%);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+            transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1);
         }
-        .menu-content { text-align: center; width: 80%; max-width: 400px; }
-        .logo-main { font-family: 'Orbitron'; font-size: 3rem; font-weight: 900; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 30px rgba(212,175,55,0.3); margin-bottom: 5px; }
-        .subtitle { font-size: 0.7rem; letter-spacing: 5px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 50px; }
+        .logo-box { text-align: center; margin-bottom: 50px; }
+        .logo-main { font-size: 3.5rem; font-weight: 900; letter-spacing: 18px; color: var(--gold); 
+                     text-shadow: 0 0 40px rgba(197,160,89,0.3); margin-bottom: 10px; }
+        .logo-sub { font-size: 0.7rem; letter-spacing: 8px; opacity: 0.5; text-transform: uppercase; }
 
-        .btn-luxury {
-            width: 100%; padding: 20px; background: none; border: 1px solid rgba(212,175,55,0.3);
-            color: var(--gold); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 3px;
-            cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; margin-bottom: 15px;
-            border-radius: 4px;
+        .btn-play {
+            padding: 22px 80px; background: none; border: 1px solid var(--gold);
+            color: var(--gold); font-size: 1rem; font-weight: 900; letter-spacing: 5px;
+            cursor: pointer; position: relative; overflow: hidden; transition: 0.4s;
+            backdrop-filter: blur(5px);
         }
-        .btn-luxury:active { background: var(--gold); color: black; transform: scale(0.98); }
+        .btn-play:active { background: var(--gold); color: black; transform: scale(0.95); }
 
-        /* --- MODERN HUD --- */
+        /* PRO HUD INTERFACE */
         #hud {
-            position: absolute; inset: 0; pointer-events: none; z-index: 100; opacity: 0; visibility: hidden;
-            transition: opacity 1s; padding: env(safe-area-inset-top) 30px env(safe-area-inset-bottom) 30px;
+            position: absolute; inset: 0; pointer-events: none; z-index: 100;
+            opacity: 0; transition: opacity 1.5s; padding: env(safe-area-inset-top, 40px) 40px;
         }
-        .hud-top { display: flex; justify-content: space-between; padding-top: 20px; }
-        .hud-card { background: rgba(0,0,0,0.6); border-left: 3px solid var(--gold); padding: 10px 20px; backdrop-filter: blur(10px); }
-        
-        #speedometer {
-            position: absolute; bottom: 40px; right: 30px; width: 140px; height: 140px;
-            border: 2px solid rgba(255,255,255,0.1); border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .speed-val { font-family: 'Orbitron'; font-size: 3rem; color: var(--gold-bright); line-height: 1; }
-        
-        /* --- GAME OVER --- */
-        #game-over { transform: translateY(100%); background: rgba(0,0,0,0.95); }
+        .hud-top { display: flex; justify-content: space-between; align-items: flex-start; }
+        .stat-card { background: rgba(255,255,255,0.03); border-bottom: 2px solid var(--gold); 
+                     padding: 15px 30px; backdrop-filter: blur(15px); }
+        .stat-label { font-size: 0.5rem; letter-spacing: 3px; color: var(--gold); margin-bottom: 5px; }
+        .stat-value { font-size: 1.5rem; font-weight: 900; }
 
-        /* --- CONTROLS --- */
-        .touch-zone { position: absolute; top: 0; height: 100%; z-index: 50; }
-        #ctrl-L { left: 0; width: 35%; }
-        #ctrl-R { right: 0; width: 35%; }
-        #ctrl-G { left: 35%; width: 30%; }
-
-        #stage-notif {
-            position: fixed; top: 30%; width: 100%; text-align: center;
-            font-family: 'Orbitron'; font-size: 3rem; color: var(--gold);
-            opacity: 0; transform: scale(0.5); transition: 0.5s; z-index: 200;
+        .speedo-container {
+            position: absolute; bottom: 50px; right: 50px; text-align: right;
         }
+        #speed-num { font-size: 6rem; font-weight: 900; line-height: 0.8; color: white; opacity: 0.9; }
+        .unit { font-size: 1rem; color: var(--gold); letter-spacing: 5px; }
+
+        /* TOUCH CONTROLS */
+        .tap-area { position: absolute; top: 0; height: 100%; z-index: 50; }
+        #L { left: 0; width: 35%; } #R { right: 0; width: 35%; } #G { left: 35%; width: 30%; }
+
+        /* STAGE TEXT */
+        #stage-text { position: fixed; top: 40%; width: 100%; text-align: center; font-size: 5rem;
+                      font-weight: 900; color: white; opacity: 0; pointer-events: none; z-index: 200; }
     </style>
 </head>
 <body>
 
-    <div id="main-menu" class="overlay">
-        <div class="menu-content">
+    <div id="menu">
+        <div class="logo-box">
             <div class="logo-main">SCUDERIA</div>
-            <div class="subtitle">Infinity Prestige</div>
-            <button class="btn-luxury" onclick="startLegacyRace()">RENNEN STARTEN</button>
-            <button class="btn-luxury" style="font-size: 0.6rem; opacity: 0.6;">GARAGE (COMING SOON)</button>
+            <div class="logo-sub">Grand Prestige Infinity</div>
         </div>
+        <button class="btn-play" onclick="startEliteRace()">ENGAGE MOTOR</button>
+        <div style="margin-top: 100px; font-size: 0.5rem; opacity: 0.3; letter-spacing: 3px;">DESIGNED BY AMIAR KEMPF</div>
     </div>
 
     <div id="hud">
         <div class="hud-top">
-            <div class="hud-card">
-                <div style="font-size: 0.6rem; color: var(--gold);">PILOT</div>
-                <div style="font-size: 1rem; font-weight: 600;">AMIAR KEMPF</div>
+            <div class="stat-card">
+                <div class="stat-label">DRIVER STATUS</div>
+                <div class="stat-value">A. KEMPF</div>
             </div>
-            <div class="hud-card" style="text-align: right; border-left: none; border-right: 3px solid var(--red);">
-                <div style="font-size: 0.6rem; color: var(--red);">ZEITLIMIT</div>
-                <div id="time-val" style="font-family: 'Orbitron'; font-size: 1.5rem;">30</div>
+            <div class="stat-card" style="border-bottom-color: var(--accent);">
+                <div class="stat-label">TIME LIMIT</div>
+                <div id="timer" class="stat-value">30</div>
             </div>
         </div>
-        
-        <div id="speedometer">
-            <div class="speed-val" id="speed-num">0</div>
-            <div style="font-size: 0.5rem; letter-spacing: 2px; color: var(--gold);">KM/H</div>
-        </div>
-
-        <div style="position: absolute; bottom: 40px; left: 30px;" class="hud-card">
-            <div style="font-size: 0.6rem; color: var(--gold);">DISTANZ</div>
-            <div id="dist-val" style="font-family: 'Orbitron';">0 M</div>
+        <div class="speedo-container">
+            <div id="speed-num">0</div>
+            <div class="unit">KM/H VELOCITY</div>
         </div>
     </div>
 
-    <div id="stage-notif">LEGENDARY</div>
+    <div id="stage-text">STAGE UP</div>
 
-    <div id="game-over" class="overlay">
-        <div class="logo-main" style="color: var(--red);">ZIEL</div>
-        <div id="final-stats" style="margin: 30px 0; letter-spacing: 2px;"></div>
-        <button class="btn-luxury" onclick="location.reload()">ERNEUT STARTEN</button>
-    </div>
-
-    <div id="ctrl-L" class="touch-zone"></div>
-    <div id="ctrl-G" class="touch-zone"></div>
-    <div id="ctrl-R" class="touch-zone"></div>
+    <div id="L" class="tap-area"></div><div id="G" class="tap-area"></div><div id="R" class="tap-area"></div>
 
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
 
-        let scene, camera, renderer, car, checkpoint, grid, engineSound;
-        let speed = 0, rotation = 0, distance = 0, timer = 30, stage = 1;
-        let input = { l: false, r: false, g: false }, gameRunning = false;
-        const obstacles = [];
+        let scene, camera, renderer, car, grid, clock = new THREE.Clock();
+        let speed = 0, rotation = 0, distance = 0, timeLeft = 30, isActive = false;
+        let input = { l: false, r: false, g: false };
+        let audioCtx, engineOsc, engineGain;
 
-        // Audio Setup
-        let audioCtx, osc, gain;
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            osc = audioCtx.createOscillator();
-            osc.type = 'sawtooth';
-            gain = audioCtx.createGain();
-            gain.gain.value = 0.05;
-            osc.connect(gain); gain.connect(audioCtx.destination);
-            osc.start();
+            engineOsc = audioCtx.createOscillator();
+            engineOsc.type = 'sawtooth';
+            engineGain = audioCtx.createGain();
+            engineGain.gain.value = 0;
+            engineOsc.connect(engineGain);
+            engineGain.connect(audioCtx.destination);
+            engineOsc.start();
         }
 
-        function createLegendaryCar() {
-            const group = new THREE.Group();
+        function createLuxuryCar() {
+            const carGroup = new THREE.Group();
             
-            // Carbon-Body
+            // Body - Sleek Aero Shape
             const body = new THREE.Mesh(
-                new THREE.BoxGeometry(1.2, 0.4, 2.6),
-                new THREE.MeshStandardMaterial({color: 0x0a0a0a, metalness: 1, roughness: 0.1})
+                new THREE.BoxGeometry(1.2, 0.35, 2.8),
+                new THREE.MeshStandardMaterial({ color: 0x080808, metalness: 1, roughness: 0.05 })
             );
-            body.position.y = 0.3;
-            group.add(body);
+            body.position.y = 0.4;
+            carGroup.add(body);
 
-            // Red Trim / Accents
+            // Cockpit - Glass
+            const cabin = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.4, 1.2),
+                new THREE.MeshStandardMaterial({ color: 0x000000, metalness: 1, transparent: true, opacity: 0.7 })
+            );
+            cabin.position.set(0, 0.7, 0.2);
+            carGroup.add(cabin);
+
+            // Gold Detail Lines
             const trim = new THREE.Mesh(
-                new THREE.BoxGeometry(1.25, 0.05, 1.5),
-                new THREE.MeshStandardMaterial({color: 0xcc0000})
+                new THREE.BoxGeometry(1.22, 0.05, 2.82),
+                new THREE.MeshStandardMaterial({ color: 0xc5a059, emissive: 0xc5a059, emissiveIntensity: 0.2 })
             );
-            trim.position.set(0, 0.35, 0.3);
-            group.add(trim);
+            trim.position.y = 0.38;
+            carGroup.add(trim);
 
-            // Cockpit (Luxus-Glas)
-            const glass = new THREE.Mesh(
-                new THREE.BoxGeometry(0.85, 0.35, 1.2),
-                new THREE.MeshStandardMaterial({color: 0x000000, metalness: 1, transparent: true, opacity: 0.8})
-            );
-            glass.position.set(0, 0.65, 0.1);
-            group.add(glass);
+            // Wheels (Simple but stylish)
+            const wheelGeo = new THREE.CylinderGeometry(0.35, 0.35, 0.2, 16);
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+            const positions = [[-0.65, 0.35, 0.9], [0.65, 0.35, 0.9], [-0.65, 0.35, -0.9], [0.65, 0.35, -0.9]];
+            positions.forEach(pos => {
+                const w = new THREE.Mesh(wheelGeo, wheelMat);
+                w.rotation.z = Math.PI/2;
+                w.position.set(...pos);
+                carGroup.add(w);
+            });
 
-            // Gold Headlights
-            const lightGeo = new THREE.BoxGeometry(0.3, 0.1, 0.1);
-            const lightMat = new THREE.MeshBasicMaterial({color: 0xf7ef8a});
-            const l1 = new THREE.Mesh(lightGeo, lightMat);
-            l1.position.set(0.4, 0.3, 1.3);
-            group.add(l1);
-            const l2 = l1.clone(); l2.position.x = -0.4;
-            group.add(l2);
-
-            return group;
+            return carGroup;
         }
 
-        function initScene() {
+        function setupScene() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000000);
-            scene.fog = new THREE.Fog(0x000000, 10, 70);
+            scene.fog = new THREE.FogExp2(0x000000, 0.02);
 
-            camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true });
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
             document.body.appendChild(renderer.domElement);
 
-            // Lighting
-            const sun = new THREE.DirectionalLight(0xd4af37, 2);
-            sun.position.set(5, 15, 10);
-            scene.add(sun);
-            scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+            // Lights
+            const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+            scene.add(ambient);
 
-            // World
-            grid = new THREE.GridHelper(1000, 100, 0xd4af37, 0x222222);
+            const spotlight = new THREE.SpotLight(0xc5a059, 5);
+            spotlight.position.set(0, 10, 10);
+            scene.add(spotlight);
+
+            // Floor - Reflection Look
+            grid = new THREE.GridHelper(2000, 100, 0xc5a059, 0x111111);
             scene.add(grid);
 
-            car = createLegendaryCar();
+            car = createLuxuryCar();
             scene.add(car);
 
-            checkpoint = new THREE.Mesh(
-                new THREE.TorusGeometry(6, 0.1, 16, 100),
-                new THREE.MeshBasicMaterial({color: 0xd4af37})
-            );
-            checkpoint.position.z = -100;
-            scene.add(checkpoint);
+            // Obstacles & Checkpoints
+            const torGeo = new THREE.TorusGeometry(8, 0.1, 16, 100);
+            const torMat = new THREE.MeshBasicMaterial({ color: 0xc5a059 });
+            const goal = new THREE.Mesh(torGeo, torMat);
+            goal.position.z = -150;
+            scene.add(goal);
+            window.goal = goal;
 
-            // Obstacles
-            for(let i=0; i<15; i++) {
-                const o = new THREE.Mesh(new THREE.BoxGeometry(2, 8, 2), new THREE.MeshStandardMaterial({color: 0x111111}));
-                o.position.set((Math.random()-0.5)*60, 4, -i*40 - 50);
-                scene.add(o); obstacles.push(o);
-            }
-
-            // Input Handler
-            const bind = (id, k) => {
+            // Input
+            const t = (id, k) => {
                 const el = document.getElementById(id);
                 el.ontouchstart = (e) => { e.preventDefault(); input[k] = true; };
                 el.ontouchend = () => input[k] = false;
             };
-            bind('ctrl-L', 'l'); bind('ctrl-R', 'r'); bind('ctrl-G', 'g');
+            t('L', 'l'); t('R', 'r'); t('G', 'g');
 
             animate();
-            setInterval(() => { if(gameRunning && timer > 0) timer--; }, 1000);
+            setInterval(() => { if(isActive && timeLeft > 0) timeLeft--; }, 1000);
         }
 
         function animate() {
-            if(!gameRunning) return;
+            if(!isActive) return;
             requestAnimationFrame(animate);
 
-            if(timer <= 0) return showGameOver();
+            // Physics Pro
+            if(input.g) {
+                speed = THREE.MathUtils.lerp(speed, 1.1, 0.03);
+                engineGain.gain.setTargetAtTime(0.15, audioCtx.currentTime, 0.1);
+            } else {
+                speed = THREE.MathUtils.lerp(speed, 0, 0.02);
+                engineGain.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.2);
+            }
 
-            // Physics
-            if(input.g) speed = THREE.MathUtils.lerp(speed, 0.95, 0.03);
-            else speed = THREE.MathUtils.lerp(speed, 0, 0.015);
-
-            if(input.l) { rotation += 0.045; car.rotation.z = 0.2; }
-            else if(input.r) { rotation -= 0.045; car.rotation.z = -0.2; }
+            if(input.l) { rotation += 0.045; car.rotation.z = 0.15; }
+            else if(input.r) { rotation -= 0.045; car.rotation.z = -0.15; }
             else { car.rotation.z = 0; }
 
             car.position.x += Math.sin(rotation) * speed;
             car.position.z += Math.cos(rotation) * speed;
             car.rotation.y = rotation;
-            distance += speed;
+            
+            // Engine Pitch
+            engineOsc.frequency.setTargetAtTime(40 + (speed * 180), audioCtx.currentTime, 0.1);
 
-            // Engine Audio Sync
-            if(osc) osc.frequency.setTargetAtTime(40 + (speed * 200), audioCtx.currentTime, 0.1);
-
-            // Checkpoint Collision
-            if(car.position.distanceTo(checkpoint.position) < 8) {
-                timer += 15; stage++;
-                checkpoint.position.z -= 300;
-                checkpoint.position.x = car.position.x + (Math.random()-0.5)*40;
-                
-                const notif = document.getElementById('stage-notif');
-                notif.style.opacity = 1; notif.style.transform = "scale(1.2)";
-                setTimeout(() => { notif.style.opacity = 0; notif.style.transform = "scale(0.5)"; }, 1000);
+            // Goal Collision
+            if(car.position.distanceTo(window.goal.position) < 10) {
+                timeLeft += 10;
+                window.goal.position.z -= 400;
+                window.goal.position.x = car.position.x + (Math.random()-0.5)*100;
+                document.getElementById('stage-text').style.opacity = 1;
+                setTimeout(() => document.getElementById('stage-text').style.opacity = 0, 800);
             }
 
-            // Obstacle Collision
-            obstacles.forEach(o => {
-                if(car.position.distanceTo(o.position) < 2.5) {
-                    speed = -0.2;
-                }
-                if(o.position.z > car.position.z + 20) {
-                    o.position.z = car.position.z - 400;
-                    o.position.x = car.position.x + (Math.random()-0.5)*100;
-                }
-            });
-
-            // Camera Follow
-            camera.fov = 60 + (speed * 40); camera.updateProjectionMatrix();
-            const camPos = new THREE.Vector3(car.position.x - Math.sin(rotation)*8, 4, car.position.z - Math.cos(rotation)*8);
-            camera.position.lerp(camPos, 0.1);
+            // High-End Camera
+            camera.fov = 60 + (speed * 35);
+            camera.updateProjectionMatrix();
+            const camOffset = new THREE.Vector3(-Math.sin(rotation)*9, 4, -Math.cos(rotation)*9);
+            camera.position.lerp(car.position.clone().add(camOffset), 0.1);
             camera.lookAt(car.position);
 
-            // HUD Update
-            document.getElementById('speed-num').innerText = Math.floor(speed * 412);
-            document.getElementById('time-val').innerText = timer;
-            document.getElementById('dist-val').innerText = Math.floor(distance) + " M";
-            
+            // HUD
+            document.getElementById('speed-num').innerText = Math.floor(speed * 395);
+            document.getElementById('timer').innerText = timeLeft;
+            document.getElementById('timer').style.color = timeLeft < 10 ? 'red' : 'white';
+
+            if(timeLeft <= 0) location.reload();
+
             renderer.render(scene, camera);
         }
 
-        function showGameOver() {
-            gameRunning = false;
-            document.getElementById('game-over').style.transform = "translateY(0)";
-            document.getElementById('final-stats').innerText = `ERGEBNIS: ${Math.floor(distance)} METER`;
-            if(gain) gain.gain.value = 0;
-        }
-
-        window.startLegacyRace = () => {
+        window.startEliteRace = () => {
             initAudio();
-            initScene();
-            document.getElementById('main-menu').style.transform = "translateY(-100%)";
+            setupScene();
+            document.getElementById('menu').style.transform = "translateY(-100%)";
             document.getElementById('hud').style.opacity = 1;
-            document.getElementById('hud').style.visibility = "visible";
-            gameRunning = true;
+            isActive = true;
         };
     </script>
 </body>
