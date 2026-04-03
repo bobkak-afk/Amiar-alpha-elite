@@ -3,832 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AMIAR KEMPF | ELITE VELOCITY · HYPERCARD EDITION</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:opsz,wght@14..32,300;14..32,600;14..32,800&display=swap" rel="stylesheet">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AMIAR KEMPF | PLATINUM VELOCITY</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Montserrat:wght@300;400;700;900&family=Orbitron:wght@900&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --gold-gradient: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+            --bg-dark: #020202;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(191, 149, 63, 0.3);
+            --accent: #bf953f;
+            --safe-bottom: env(safe-area-inset-bottom);
         }
 
-        body {
-            background: radial-gradient(ellipse at 30% 20%, #0a0a1a, #020108);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Inter', sans-serif;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background: var(--bg-dark); color: #fff; height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* animierter Hintergrund-Lichtschein */
-        body::before {
-            content: "";
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(0,242,255,0.08) 0%, rgba(212,175,55,0.05) 50%, transparent 80%);
-            animation: aurora 18s infinite alternate;
-            pointer-events: none;
-            z-index: 0;
+        /* Hintergrund Partikel-Animation */
+        .bg-glow {
+            position: absolute; width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(191,149,63,0.15) 0%, transparent 70%);
+            top: -50px; right: -50px; z-index: 0; animation: float 10s infinite alternate;
+        }
+        @keyframes float { from { transform: translate(0,0); } to { transform: translate(-100px, 100px); } }
+
+        .app-shell {
+            width: 100%; max-width: 440px; height: 100vh; background: var(--bg-dark);
+            position: relative; overflow: hidden; display: flex; flex-direction: column;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        @keyframes aurora {
-            0% { transform: translate(0%, 0%) rotate(0deg); opacity: 0.4; }
-            100% { transform: translate(5%, 5%) rotate(5deg); opacity: 1; }
+        /* --- HEADER --- */
+        .header {
+            padding: 60px 25px 20px; text-align: center; z-index: 10;
+        }
+        .brand {
+            font-family: 'Cinzel', serif; font-size: 1.6rem; letter-spacing: 5px;
+            background: var(--gold-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(191, 149, 63, 0.3);
+        }
+        .status-line { font-family: 'Orbitron'; font-size: 0.5rem; letter-spacing: 4px; color: #666; margin-top: 8px; }
+
+        /* --- SCREENS --- */
+        .screen { display: none; flex: 1; padding: 25px; flex-direction: column; z-index: 5; opacity: 0; transition: 0.5s; }
+        .screen.active { display: flex; opacity: 1; transform: scale(1); }
+
+        /* --- BENTO CARDS --- */
+        .card {
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 24px; padding: 20px; backdrop-filter: blur(15px);
+            margin-bottom: 15px; position: relative; overflow: hidden;
+        }
+        .card::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.05), transparent);
+            transform: rotate(45deg); pointer-events: none;
         }
 
-        /* MAIN SHELL – GLASSMASTER */
-        .game-shell {
-            width: 100%;
-            max-width: 560px;
-            height: 90vh;
-            max-height: 880px;
-            background: rgba(8, 8, 18, 0.48);
-            backdrop-filter: blur(20px);
-            border-radius: 64px;
-            border: 1px solid rgba(0, 242, 255, 0.4);
-            box-shadow: 0 40px 70px -20px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.15), 0 0 0 2px rgba(0,242,255,0.1) inset;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            z-index: 2;
-            transition: transform 0.3s ease;
+        /* --- UI ELEMENTS --- */
+        .btn-gold {
+            background: var(--gold-gradient); border: none; padding: 20px;
+            border-radius: 16px; color: #000; font-weight: 900; font-size: 0.9rem;
+            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            box-shadow: 0 15px 35px rgba(191, 149, 63, 0.3); transition: 0.3s;
+        }
+        .btn-gold:active { transform: scale(0.96); box-shadow: 0 5px 15px rgba(191, 149, 63, 0.2); }
+
+        .btn-outline {
+            background: transparent; border: 1px solid var(--glass-border); padding: 15px;
+            border-radius: 12px; color: var(--accent); font-size: 0.7rem; font-weight: 700;
+            letter-spacing: 2px; text-transform: uppercase; margin-top: 10px; cursor: pointer;
         }
 
-        /* dynamischer Lichtkanten-Sweep */
-        .game-shell::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 64px;
-            padding: 2px;
-            background: linear-gradient(125deg, rgba(0,242,255,0.6), rgba(212,175,55,0.3), rgba(255,0,100,0.2));
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-            opacity: 0.7;
-            animation: borderGlow 3s infinite alternate;
-        }
+        /* --- RACING HUD --- */
+        .hud-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .hud-item { text-align: center; border-radius: 20px; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
+        .hud-label { font-size: 0.5rem; color: #888; text-transform: uppercase; letter-spacing: 2px; display: block; margin-bottom: 5px; }
+        .hud-val { font-family: 'Orbitron'; color: var(--accent); font-size: 1rem; }
 
-        @keyframes borderGlow {
-            0% { opacity: 0.4; }
-            100% { opacity: 1; }
+        /* --- QUIZ UI --- */
+        .q-text { font-size: 1.4rem; font-weight: 300; text-align: center; margin-bottom: 35px; line-height: 1.4; color: #efefef; }
+        .option {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+            padding: 22px; border-radius: 20px; margin-bottom: 15px; cursor: pointer;
+            transition: 0.3s; text-align: center; font-weight: 400; font-size: 1rem;
         }
+        .option:hover { border-color: var(--accent); background: rgba(191, 149, 63, 0.1); }
+        .correct { background: var(--gold-gradient) !important; color: #000 !important; font-weight: 900; }
+        .wrong { background: #600 !important; border-color: #f00 !important; }
 
-        /* Header Luxus */
-        .hud-lux {
-            padding: 28px 24px 12px 24px;
-            position: relative;
-            z-index: 5;
-            background: linear-gradient(135deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 100%);
-            border-bottom: 1px solid rgba(0,242,255,0.3);
+        /* --- NAV BAR --- */
+        .nav-bar {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: calc(85px + var(--safe-bottom)); background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(25px); border-top: 1px solid var(--glass-border);
+            display: flex; justify-content: space-around; align-items: center;
+            padding-bottom: var(--safe-bottom); z-index: 100;
         }
+        .nav-btn { color: #666; font-size: 0.6rem; text-align: center; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; transition: 0.3s; }
+        .nav-btn.active, .nav-btn:hover { color: var(--accent); }
+        .nav-icon { font-size: 1.4rem; display: block; margin-bottom: 4px; }
 
-        .brand-lux {
-            font-family: 'Orbitron', monospace;
-            font-weight: 900;
-            font-size: 1.6rem;
-            letter-spacing: 5px;
-            background: linear-gradient(135deg, #FFFFFF, #00f2ff, #d4af37, #ff66cc);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 12px rgba(0,242,255,0.5);
-            animation: shimmer 5s infinite;
-        }
+        /* Timer Line */
+        .timer-wrap { width: 100%; height: 2px; background: rgba(255,255,255,0.05); margin-bottom: 30px; }
+        .timer-fill { height: 100%; width: 100%; background: var(--gold-gradient); transition: width 0.1s linear; }
 
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-
-        .sub-lux {
-            font-size: 0.65rem;
-            letter-spacing: 3px;
-            color: #d4af37;
-            font-family: 'Orbitron';
-            margin-top: 6px;
-            opacity: 0.9;
-            text-transform: uppercase;
-        }
-
-        .stats-glass {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            background: rgba(0, 0, 0, 0.55);
-            border-radius: 100px;
-            padding: 10px 24px;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(0,242,255,0.4);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-        }
-
-        .stat-cell-lux {
-            text-align: center;
-            font-family: 'Orbitron';
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #b8f2ff;
-            letter-spacing: 1px;
-        }
-
-        .stat-value-lux {
-            font-size: 1.3rem;
-            font-weight: 900;
-            color: white;
-            margin-top: 5px;
-            text-shadow: 0 0 10px cyan;
-            background: linear-gradient(135deg, #fff, #aaf);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        /* TRACK – carbon style */
-        .track-lux {
-            background: rgba(0, 0, 0, 0.6);
-            margin: 16px 20px;
-            border-radius: 44px;
-            padding: 16px 12px;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 12px 25px -8px black;
-            border: 1px solid rgba(212,175,55,0.5);
-            position: relative;
-            backdrop-filter: blur(4px);
-        }
-
-        .lane-card {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 18px;
-            background: rgba(0,0,0,0.5);
-            border-radius: 60px;
-            padding: 6px 18px 6px 12px;
-            transition: all 0.2s;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .driver-name-lux {
-            width: 100px;
-            font-family: 'Orbitron';
-            font-size: 0.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #f0f0ff, #bbccff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .progress-glass {
-            flex: 1;
-            height: 48px;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 80px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 6px #000, 0 1px 0 rgba(255,255,255,0.1);
-        }
-
-        .progress-fill-lux {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #00f2ff, #ff44cc, #ffaa33);
-            border-radius: 80px;
-            transition: width 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 18px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            color: black;
-            font-family: monospace;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .progress-fill-lux::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, rgba(255,255,255,0.2), transparent);
-            pointer-events: none;
-        }
-
-        .car-icon-lux {
-            font-size: 2rem;
-            filter: drop-shadow(0 0 10px cyan);
-            width: 56px;
-            text-align: center;
-            transition: transform 0.2s;
-        }
-
-        /* ITEM SLOT – Diamant */
-        .item-lux {
-            display: flex;
-            justify-content: center;
-            margin: 8px 20px 4px 20px;
-        }
-
-        .item-gem {
-            background: rgba(0, 0, 0, 0.75);
-            border-radius: 60px;
-            padding: 10px 32px;
-            display: inline-flex;
-            align-items: center;
-            gap: 18px;
-            border: 1px solid #ffd966;
-            backdrop-filter: blur(12px);
-            cursor: pointer;
-            transition: all 0.25s ease;
-            box-shadow: 0 0 12px rgba(212,175,55,0.6);
-        }
-
-        .item-gem:active {
-            transform: scale(0.96);
-            box-shadow: 0 0 25px gold;
-        }
-
-        /* QUIZ CARD – Juwel */
-        .quiz-card {
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(28px);
-            border-radius: 52px;
-            margin: 8px 20px 20px 20px;
-            padding: 28px 22px;
-            border: 1px solid rgba(212, 175, 55, 0.7);
-            box-shadow: 0 25px 40px -15px black;
-            transition: all 0.2s;
-        }
-
-        .timer-ring-lux {
-            width: 100%;
-            height: 8px;
-            background: #1e1e2a;
-            border-radius: 8px;
-            margin-bottom: 28px;
-            overflow: hidden;
-            box-shadow: inset 0 1px 2px #000;
-        }
-
-        .timer-fill-lux {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #00f2ff, #ffaa44, #ff44aa);
-            transition: width 0.05s linear;
-            border-radius: 8px;
-        }
-
-        .question-text-lux {
-            font-weight: 800;
-            font-size: 1.3rem;
-            text-align: center;
-            margin-bottom: 32px;
-            color: #fff;
-            text-shadow: 0 0 12px rgba(0,242,255,0.8);
-            letter-spacing: -0.3px;
-            line-height: 1.3;
-        }
-
-        .option-lux {
-            background: rgba(25, 28, 40, 0.9);
-            padding: 16px 18px;
-            border-radius: 80px;
-            text-align: center;
-            font-weight: 600;
-            border: 1px solid rgba(255,255,255,0.2);
-            transition: all 0.2s;
-            cursor: pointer;
-            margin-bottom: 14px;
-            backdrop-filter: blur(5px);
-            font-size: 0.95rem;
-        }
-
-        .option-lux:active {
-            transform: scale(0.97);
-            background: #2f3b5c;
-            border-color: cyan;
-            box-shadow: 0 0 12px cyan;
-        }
-
-        /* Feedback */
-        .feedback-lux {
-            text-align: center;
-            background: rgba(0, 0, 0, 0.85);
-            border-radius: 48px;
-            padding: 24px;
-            border: 1px solid gold;
-        }
-
-        .btn-elite-lux {
-            background: linear-gradient(95deg, #00c3ff, #0044cc, #a020f0);
-            border: none;
-            padding: 18px;
-            border-radius: 80px;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 1rem;
-            color: white;
-            width: 100%;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 8px 25px rgba(0,150,255,0.5);
-            letter-spacing: 1px;
-        }
-
-        .btn-elite-lux:active {
-            transform: scale(0.96);
-            box-shadow: 0 2px 10px cyan;
-        }
-
-        /* PODIUM – royal */
-        .podium-card {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(20px);
-            margin: 20px;
-            border-radius: 56px;
-            padding: 24px;
-            text-align: center;
-            border: 1px solid gold;
-        }
-
-        .podium-item-lux {
-            background: rgba(0, 0, 0, 0.65);
-            margin-bottom: 16px;
-            padding: 18px;
-            border-radius: 48px;
-            display: flex;
-            justify-content: space-between;
-            border-left: 8px solid gold;
-            font-weight: bold;
-            backdrop-filter: blur(4px);
-        }
-
-        /* Bottom Nav – immer da, immer stylish */
-        .bottom-nav {
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(24px);
-            border-top: 1px solid rgba(0,242,255,0.5);
-            display: flex;
-            justify-content: space-evenly;
-            padding: 14px 20px;
-            margin-top: auto;
-            border-radius: 0 0 60px 60px;
-            z-index: 20;
-        }
-
-        .nav-btn {
-            background: rgba(20, 30, 55, 0.9);
-            border: none;
-            padding: 12px 28px;
-            border-radius: 60px;
-            font-family: 'Orbitron';
-            font-weight: bold;
-            font-size: 0.85rem;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(4px);
-            transition: all 0.2s;
-            cursor: pointer;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.5);
-        }
-
-        .nav-btn:active {
-            transform: scale(0.95);
-            background: #2c5f8a;
-        }
-
-        .nav-btn-home {
-            background: linear-gradient(135deg, #d4af37, #b8860b);
-            color: #010101;
-            text-shadow: 0 1px 0 gold;
-        }
-
-        .nav-btn-restart {
-            background: linear-gradient(135deg, #1e6f9f, #0a3b4f);
-        }
-
-        .screen {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .active-screen {
-            display: flex;
-        }
-
-        /* Animationen für floating */
-        @keyframes floatGlow {
-            0% { text-shadow: 0 0 2px cyan; }
-            100% { text-shadow: 0 0 15px cyan; }
-        }
-
-        .car-icon-lux {
-            animation: floatGlow 1.5s infinite alternate;
-        }
+        /* Track View */
+        .track { height: 80px; padding: 10px; background: linear-gradient(to bottom, transparent, rgba(191,149,63,0.05)); position: relative; }
+        .lane { height: 30px; position: relative; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        .car { position: absolute; left: 5%; font-size: 1.5rem; transition: 1s ease-out; filter: drop-shadow(0 0 10px var(--accent)); }
     </style>
 </head>
 <body>
-<div class="game-shell" id="gameApp">
-    <div class="hud-lux">
-        <div class="brand-lux">AMIAR KEMPF</div>
-        <div class="sub-lux">ELITE VELOCITY · HYPERCARD</div>
-        <div class="stats-glass">
-            <div class="stat-cell-lux">🏁 DIST<span class="stat-value-lux" id="playerDistLabel">0</span></div>
-            <div class="stat-cell-lux">⚡ RPM<span class="stat-value-lux" id="rpmLive">0</span></div>
-            <div class="stat-cell-lux">🎮 ITEM<span class="stat-value-lux" id="itemIndicator">—</span></div>
+
+<div class="bg-glow"></div>
+
+<div class="app-shell">
+    <div class="track">
+        <div class="lane"><div id="car-0" class="car">🏎️</div></div>
+        <div class="lane"><div id="car-1" class="car">🚙</div></div>
+    </div>
+
+    <header class="header">
+        <div class="brand">AMIAR KEMPF</div>
+        <div class="status-line">PLATINUM PERFORMANCE</div>
+    </header>
+
+    <div id="screen-home" class="screen active">
+        <div style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+            <div class="card" style="text-align: center;">
+                <h3 style="font-weight: 300; letter-spacing: 3px; color: var(--accent); margin-bottom: 10px;">ELITE ACCESS</h3>
+                <p style="font-size: 0.8rem; opacity: 0.6; line-height: 1.6;">Authentifiziere dein System für das ultimative Velocity-Erlebnis.</p>
+            </div>
+            <button class="btn-gold" onclick="startGame()">System Starten</button>
+            <button class="btn-outline" onclick="nav('leader')">Leaderboard</button>
         </div>
     </div>
 
-    <!-- HOME SCREEN -->
-    <div id="homeScreen" class="screen active-screen">
-        <div style="flex:1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 20px;">
-            <div style="font-size: 5.5rem; filter: drop-shadow(0 0 20px cyan);">🏎️💎</div>
-            <div style="font-family: Orbitron; font-size: 1.9rem; background: linear-gradient(135deg,#fff,#0af,#f0f); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight: 900;">MARIO CARD MODE</div>
-            <div style="font-size: 0.75rem; background: #000000aa; padding: 8px 24px; border-radius: 60px; backdrop-filter: blur(8px);">⚡ QUIZ BOOST · ITEMS · RIVAL AI ⚡</div>
+    <div id="screen-race" class="screen">
+        <div class="hud-grid">
+            <div class="hud-item"><span class="hud-label">Speed</span><span class="hud-val" id="hud-speed">0</span></div>
+            <div class="hud-item"><span class="hud-label">Item</span><span class="hud-val" id="hud-item">None</span></div>
         </div>
-        <div style="padding: 24px;">
-            <button class="btn-elite-lux" id="ignitionBtn">🔥 IGNITION · START RACE 🔥</button>
+        <div class="timer-wrap"><div id="timer-bar" class="timer-fill"></div></div>
+        
+        <div id="quiz-ui">
+            <h2 class="q-text" id="q-text">System initialisiert...</h2>
+            <div id="options-box"></div>
+        </div>
+
+        <div id="feedback" style="display:none; text-align:center;">
+            <h1 id="fb-title" style="font-family: Cinzel; margin-bottom: 10px;"></h1>
+            <p id="fb-fact" style="font-size: 0.9rem; opacity: 0.6; margin-bottom: 40px;"></p>
+            <button class="btn-gold" style="width: 100%;" onclick="handleNext()">Weiter</button>
         </div>
     </div>
 
-    <!-- RACE SCREEN -->
-    <div id="raceScreen" class="screen">
-        <div class="track-lux">
-            <div class="lane-card">
-                <div class="car-icon-lux">🏎️</div>
-                <div class="driver-name-lux">🏆 AMIAR</div>
-                <div class="progress-glass"><div class="progress-fill-lux" id="playerProgressFill">0%</div></div>
-            </div>
-            <div class="lane-card">
-                <div class="car-icon-lux">🚗⚡</div>
-                <div class="driver-name-lux">⚡ ELITE RIVAL</div>
-                <div class="progress-glass"><div class="progress-fill-lux" id="aiProgressFill">0%</div></div>
-            </div>
-        </div>
-
-        <div class="item-lux" id="itemSlotArea">
-            <div class="item-gem" id="useItemBtn">
-                <span id="itemEmoji" style="font-size: 2rem;">❓</span>
-                <span id="itemNameText" style="font-family: Orbitron; font-weight: bold; color: #ffdd99; letter-spacing: 1px;">LEER</span>
-            </div>
-        </div>
-
-        <div class="quiz-card" id="quizContainer">
-            <div class="timer-ring-lux"><div class="timer-fill-lux" id="quizTimerFill" style="width: 100%"></div></div>
-            <div id="questionArea">
-                <div class="question-text-lux" id="questionTxt">TAP ON OPTION TO BOOST</div>
-                <div id="optionsGrid" class="option-grid"></div>
-            </div>
-            <div id="feedbackArea" style="display: none;">
-                <div class="feedback-lux">
-                    <div id="feedbackMessage" style="font-weight: bold; font-size: 1.2rem;"></div>
-                    <div id="funFact" style="font-size: 0.75rem; margin-top: 12px; opacity:0.9;"></div>
-                    <button class="btn-elite-lux" id="nextQuestionBtn" style="margin-top: 18px;">➡️ NÄCHSTE FRAGE</button>
-                </div>
-            </div>
-        </div>
+    <div id="screen-leader" class="screen">
+        <h2 style="font-family: Cinzel; text-align: center; margin-bottom: 30px; letter-spacing: 5px;">HALL OF FAME</h2>
+        <div id="leaderboard-list"></div>
+        <button class="btn-gold" style="margin-top: 20px;" onclick="location.reload()">Reset</button>
     </div>
 
-    <!-- PODIUM SCREEN -->
-    <div id="podiumScreen" class="screen">
-        <div class="podium-card">
-            <div style="font-family: Orbitron; font-size: 1.9rem; color: #d4af37; text-shadow: 0 0 10px gold;">🏁 RACE FINISHED 🏁</div>
-            <div id="podiumList" style="margin: 28px 0;"></div>
+    <nav class="nav-bar">
+        <div class="nav-btn" onclick="goBack()">
+            <span class="nav-icon">⟵</span><span>Back</span>
         </div>
-    </div>
-
-    <!-- PERMANENT BOTTOM NAVIGATION (HOME + RESTART) -->
-    <div class="bottom-nav">
-        <button class="nav-btn nav-btn-home" id="homeNavBtn">🏠 HOME</button>
-        <button class="nav-btn nav-btn-restart" id="restartNavBtn">⟳ NEUSTART</button>
-    </div>
+        <div class="nav-btn" onclick="nav('home')">
+            <span class="nav-icon"> home</span><span>Home</span>
+        </div>
+        <div class="nav-btn" onclick="nav('leader')">
+            <span class="nav-icon">🏆</span><span>Elite</span>
+        </div>
+    </nav>
 </div>
 
 <script>
-    (function(){
-        // ------------------------------
-        //  HYPER RACING ENGINE (MARIO CARD STYLE)
-        // ------------------------------
-        const QUESTION_SET = [
-            { q: "Welcher Hypercar bricht den 0-400-0 Rekord in 29 Sekunden?", o: ["Koenigsegg Regera", "Rimac Nevera", "Bugatti Bolide", "Tesla Roadster"], c: 1, fact: "Rimac Nevera – 1914 PS, elektrischer Wahnsinn!" },
-            { q: "Was bedeutet 'DRS' im Rennsport?", o: ["Drag Reduction System", "Dynamic Racing Shift", "Direct Rev System", "Drift Rotation Stabilizer"], c: 0, fact: "DRS öffnet den Heckflügel für weniger Luftwiderstand." },
-            { q: "Welches Icon gehört zu Ferrari?", o: ["Lamborghini Stier", "Porsche Wappen", "Cavallino Rampante", "Maserati Trident"], c: 2, fact: "Das steigende Pferd – legendär wie V12!" },
-            { q: "24 Stunden Rennen – welcher Klassiker?", o: ["Monaco GP", "Le Mans", "Indy 500", "Nürburgring 24h"], c: 1, fact: "Le Mans – ultimative Ausdauerprüfung." },
-            { q: "V12 Motor: wie viele Zylinder?", o: ["6 Zylinder", "8 Zylinder", "12 Zylinder", "16 Zylinder"], c: 2, fact: "V12 = pure Emotion & Sound." }
-        ];
+    // --- APP LOGIK (REDUZIERT & STABIL) ---
+    const DB = [
+        { q: "Was definiert die Aerodynamik des Bugatti Chiron?", o: ["Vmax Modus", "Air-Brake System", "Allrad-Lenkung", "Carbon-Chassis"], c: 1, e: "Der Heckflügel dient als massive Luftbremse." },
+        { q: "Welches Edelmetall ist am teuersten?", o: ["Gold", "Platin", "Rhodium", "Silber"], c: 2, e: "Rhodium ist extrem selten und wertvoll." },
+        { q: "Wo liegt der Hauptsitz von Ferrari?", o: ["Mailand", "Turin", "Maranello", "Rom"], c: 2, e: "Maranello ist die Heimat des Cavallino Rampante." }
+    ];
 
-        const ITEMS_LIB = [
-            { id: "NITRO", name: "NITRO BOOST", emoji: "🚀", effect: "boost", boostValue: 85 },
-            { id: "SHIELD", name: "ENERGY SHIELD", emoji: "🛡️", effect: "shield" },
-            { id: "OIL", name: "SLICK OIL", emoji: "🛢️", effect: "trap" }
-        ];
+    let state = {
+        players: [{ name: "Amiar Kempf", score: 0 }, { name: "Rival", score: 0 }],
+        curP: 0, curQ: 0, time: 10, timer: null, history: ['home']
+    };
 
-        let gameActive = false;
-        let playerScore = 0, aiScore = 0;
-        const WIN_SCORE = 1250;
-        let currentItem = null;
-        let shieldActive = false;
+    function nav(s) {
+        state.history.push(s);
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById('screen-' + s).classList.add('active');
+    }
 
-        let currentQuestionObj = null;
-        let answering = false;
-        let quizTimerInterval = null;
-        let timeLeft = 9.0;
-        let waitingFeedback = false;
-        let aiInterval = null;
-
-        let audioCtx = null, osc = null, gain = null;
-
-        // DOM
-        const homeScreen = document.getElementById('homeScreen');
-        const raceScreen = document.getElementById('raceScreen');
-        const podiumScreen = document.getElementById('podiumScreen');
-        const playerFill = document.getElementById('playerProgressFill');
-        const aiFill = document.getElementById('aiProgressFill');
-        const playerDistLabel = document.getElementById('playerDistLabel');
-        const rpmLive = document.getElementById('rpmLive');
-        const itemIndicatorSpan = document.getElementById('itemIndicator');
-        const itemEmojiSpan = document.getElementById('itemEmoji');
-        const itemNameSpan = document.getElementById('itemNameText');
-        const useItemBtn = document.getElementById('useItemBtn');
-        const questionTxt = document.getElementById('questionTxt');
-        const optionsGrid = document.getElementById('optionsGrid');
-        const quizTimerFill = document.getElementById('quizTimerFill');
-        const questionAreaDiv = document.getElementById('questionArea');
-        const feedbackAreaDiv = document.getElementById('feedbackArea');
-        const feedbackMessageDiv = document.getElementById('feedbackMessage');
-        const funFactDiv = document.getElementById('funFact');
-        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
-
-        function showFloatingMsg(msg, color) {
-            let notif = document.createElement('div');
-            notif.innerText = msg;
-            notif.style.position = 'absolute';
-            notif.style.bottom = '30%';
-            notif.style.left = '15%';
-            notif.style.background = '#000000cc';
-            notif.style.padding = '10px 24px';
-            notif.style.borderRadius = '60px';
-            notif.style.fontWeight = 'bold';
-            notif.style.color = color;
-            notif.style.backdropFilter = 'blur(16px)';
-            notif.style.zIndex = '999';
-            notif.style.fontFamily = 'Orbitron';
-            notif.style.fontSize = '0.8rem';
-            notif.style.border = `1px solid ${color}`;
-            document.querySelector('.game-shell').appendChild(notif);
-            setTimeout(() => notif.remove(), 1500);
+    function goBack() {
+        if(state.history.length > 1) {
+            state.history.pop();
+            nav(state.history.pop());
         }
+    }
 
-        function updateProgressUI() {
-            let playerPercent = Math.min(100, (playerScore / WIN_SCORE) * 100);
-            let aiPercent = Math.min(100, (aiScore / WIN_SCORE) * 100);
-            playerFill.style.width = playerPercent + "%";
-            playerFill.innerText = Math.floor(playerPercent) + "%";
-            aiFill.style.width = aiPercent + "%";
-            aiFill.innerText = Math.floor(aiPercent) + "%";
-            playerDistLabel.innerText = Math.floor(playerScore);
-            let rpm = 800 + (playerScore / WIN_SCORE) * 7000;
-            rpmLive.innerText = Math.floor(rpm);
-            if (osc && gain && gameActive) {
-                let pitch = 45 + (playerScore / WIN_SCORE) * 45;
-                osc.frequency.setTargetAtTime(pitch, audioCtx.currentTime, 0.05);
-                gain.gain.value = 0.07 + (playerScore / WIN_SCORE) * 0.12;
-            }
+    function startGame() {
+        state.curP = 0;
+        state.players.forEach(p => p.score = 0);
+        updateTrack();
+        startTurn();
+    }
+
+    function startTurn() {
+        state.curQ = 0;
+        nav('race');
+        loadQ();
+    }
+
+    function loadQ() {
+        if(state.curQ >= 3) { nextPilot(); return; }
+        const q = DB[Math.floor(Math.random() * DB.length)];
+        document.getElementById('quiz-ui').style.display = 'block';
+        document.getElementById('feedback').style.display = 'none';
+        document.getElementById('q-text').innerText = q.q;
+        const box = document.getElementById('options-box');
+        box.innerHTML = '';
+        q.o.forEach((o, i) => {
+            const el = document.createElement('div');
+            el.className = 'option';
+            el.innerText = o;
+            el.onclick = () => check(i, q.c, q.e);
+            box.appendChild(el);
+        });
+        startTimer();
+    }
+
+    function startTimer() {
+        clearInterval(state.timer);
+        state.time = 10;
+        state.timer = setInterval(() => {
+            state.time -= 0.1;
+            document.getElementById('timer-bar').style.width = (state.time * 10) + "%";
+            if(state.time <= 0) check(-1, 0, "Zu langsam für die Elite.");
+        }, 100);
+    }
+
+    function check(idx, correct, fact) {
+        clearInterval(state.timer);
+        document.getElementById('quiz-ui').style.display = 'none';
+        document.getElementById('feedback').style.display = 'block';
+        const title = document.getElementById('fb-title');
+        document.getElementById('fb-fact').innerText = fact;
+
+        if(idx === correct) {
+            title.innerText = "EXCELLENT";
+            title.style.color = "var(--accent)";
+            state.players[state.curP].score += Math.round(state.time * 75);
+            updateTrack();
+        } else {
+            title.innerText = "FAILED";
+            title.style.color = "#f00";
         }
+        document.getElementById('hud-speed').innerText = state.players[state.curP].score + " KM/H";
+    }
 
-        function refreshItemUI() {
-            if (currentItem) {
-                itemEmojiSpan.innerText = currentItem.emoji;
-                itemNameSpan.innerText = currentItem.name;
-                itemIndicatorSpan.innerText = currentItem.emoji;
-                useItemBtn.style.opacity = "1";
-            } else {
-                itemEmojiSpan.innerText = "❓";
-                itemNameSpan.innerText = "LEER";
-                itemIndicatorSpan.innerText = "—";
-                useItemBtn.style.opacity = "0.6";
-            }
+    function handleNext() { state.curQ++; loadQ(); }
+
+    function updateTrack() {
+        state.players.forEach((p, i) => {
+            const car = document.getElementById('car-' + i);
+            car.style.left = Math.min((p.score / 1500) * 85 + 5, 90) + "%";
+        });
+    }
+
+    function nextPilot() {
+        state.curP++;
+        if(state.curP < state.players.length) {
+            alert("Nächster Pilot übernimmt.");
+            startTurn();
+        } else {
+            showLeader();
         }
+    }
 
-        function grantRandomItem() {
-            if (!gameActive) return;
-            if (currentItem === null) {
-                let rand = Math.floor(Math.random() * ITEMS_LIB.length);
-                currentItem = { ...ITEMS_LIB[rand] };
-                refreshItemUI();
-                showFloatingMsg(`📦 ITEM ERHALTEN: ${currentItem.name}`, "#ffcc44");
-            }
-        }
-
-        function applyCorrectBoost(answerTimeLeft) {
-            let boost = Math.floor(35 + (answerTimeLeft * 5));
-            boost = Math.min(95, boost);
-            playerScore = Math.min(WIN_SCORE, playerScore + boost);
-            updateProgressUI();
-            showFloatingMsg(`✅ RICHTIG! +${boost} KM/H`, "#00ffaa");
-            if (Math.random() < 0.65) grantRandomItem();
-        }
-
-        function applyWrongPenalty() {
-            let penalty = 40;
-            playerScore = Math.max(0, playerScore - penalty);
-            updateProgressUI();
-            showFloatingMsg(`❌ FEHLER! -${penalty} KM/H`, "#ff4444");
-        }
-
-        function activateItem() {
-            if (!gameActive || waitingFeedback || answering) return;
-            if (!currentItem) return;
-            let item = currentItem;
-            if (item.effect === "boost") {
-                playerScore = Math.min(WIN_SCORE, playerScore + item.boostValue);
-                updateProgressUI();
-                showFloatingMsg(`🚀 NITRO +${item.boostValue}`, "#0af");
-                currentItem = null;
-                refreshItemUI();
-            } else if (item.effect === "shield") {
-                shieldActive = true;
-                showFloatingMsg(`🛡️ SHIELD AKTIVIERT (schützt vor Öl)`, "#d4af37");
-                currentItem = null;
-                refreshItemUI();
-                setTimeout(() => { shieldActive = false; showFloatingMsg(`🛡️ Schutz abgelaufen`, "#aaa"); }, 8000);
-            } else if (item.effect === "trap") {
-                if (aiScore > 20) {
-                    let penalty = 45;
-                    aiScore = Math.max(0, aiScore - penalty);
-                    updateProgressUI();
-                    showFloatingMsg(`🛢️ ÖLPFÜTZE! Gegner -${penalty}`, "#ff884d");
-                } else showFloatingMsg(`Öl wirkungslos`, "#aaa");
-                currentItem = null;
-                refreshItemUI();
-            }
-            checkWin();
-        }
-
-        function handleAnswer(selectedIdx) {
-            if (!gameActive || !answering) return;
-            clearInterval(quizTimerInterval);
-            answering = false;
-            let isCorrect = (selectedIdx === currentQuestionObj.c);
-            if (isCorrect) applyCorrectBoost(timeLeft);
-            else applyWrongPenalty();
-            feedbackMessageDiv.innerText = isCorrect ? "✨ PERFEKTER DRIFT! + BOOST ✨" : "💥 MOTOR STUTTER! ZEIT ODER FALSCH 💥";
-            funFactDiv.innerText = currentQuestionObj.fact + (isCorrect ? "" : " (richtig: " + currentQuestionObj.o[currentQuestionObj.c] + ")");
-            questionAreaDiv.style.display = "none";
-            feedbackAreaDiv.style.display = "block";
-            waitingFeedback = true;
-            checkWin();
-        }
-
-        function loadNewQuestion() {
-            if (!gameActive) return;
-            if (waitingFeedback) return;
-            answering = true;
-            waitingFeedback = false;
-            questionAreaDiv.style.display = "block";
-            feedbackAreaDiv.style.display = "none";
-            const randomIndex = Math.floor(Math.random() * QUESTION_SET.length);
-            currentQuestionObj = { ...QUESTION_SET[randomIndex] };
-            questionTxt.innerText = currentQuestionObj.q;
-            optionsGrid.innerHTML = "";
-            currentQuestionObj.o.forEach((opt, idx) => {
-                let btn = document.createElement('div');
-                btn.className = "option-lux";
-                btn.innerText = opt;
-                btn.onclick = () => handleAnswer(idx);
-                optionsGrid.appendChild(btn);
-            });
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            timeLeft = 9.0;
-            quizTimerFill.style.width = "100%";
-            quizTimerInterval = setInterval(() => {
-                if (!gameActive || !answering) return;
-                timeLeft -= 0.1;
-                let percent = Math.max(0, (timeLeft / 9.0) * 100);
-                quizTimerFill.style.width = percent + "%";
-                if (timeLeft <= 0) {
-                    clearInterval(quizTimerInterval);
-                    if (answering) handleAnswer(-1);
-                }
-            }, 100);
-        }
-
-        function nextQuizStep() {
-            if (!gameActive) return;
-            if (!waitingFeedback) return;
-            waitingFeedback = false;
-            if (playerScore >= WIN_SCORE || aiScore >= WIN_SCORE) { endRace(); return; }
-            loadNewQuestion();
-        }
-
-        function aiAdvance() {
-            if (!gameActive) return;
-            if (aiScore >= WIN_SCORE) return;
-            let increment = 18 + Math.floor(Math.random() * 34);
-            aiScore = Math.min(WIN_SCORE, aiScore + increment);
-            updateProgressUI();
-            if (Math.random() < 0.28 && gameActive && !shieldActive && playerScore > 30) {
-                let oilPenalty = 38;
-                playerScore = Math.max(0, playerScore - oilPenalty);
-                updateProgressUI();
-                showFloatingMsg(`⚠️ GEGNER WIRFT ÖL! -${oilPenalty}`, "#ff6666");
-            } else if (Math.random() < 0.28 && shieldActive) showFloatingMsg(`🛡️ SHIELD BLOCKT GEGNER-ÖL!`, "#aaffdd");
-            checkWin();
-        }
-
-        function checkWin() {
-            if (playerScore >= WIN_SCORE) endRace("player");
-            else if (aiScore >= WIN_SCORE) endRace("ai");
-        }
-
-        function endRace() {
-            if (!gameActive) return;
-            gameActive = false;
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            if (aiInterval) clearInterval(aiInterval);
-            if (osc && gain) gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
-            homeScreen.classList.remove('active-screen');
-            raceScreen.classList.remove('active-screen');
-            podiumScreen.classList.add('active-screen');
-            const podiumDiv = document.getElementById('podiumList');
-            let winnerName = (playerScore >= WIN_SCORE) ? "🏆 AMIAR KEMPF" : "⚡ ELITE RIVAL";
-            podiumDiv.innerHTML = `
-                <div class="podium-item-lux" style="border-left-color:gold;">🥇 GEWINNER: ${winnerName}<span>${Math.floor(Math.max(playerScore, aiScore))} pts</span></div>
-                <div class="podium-item-lux">🥈 AMIAR: ${Math.floor(playerScore)} pts</div>
-                <div class="podium-item-lux">🥉 RIVAL: ${Math.floor(aiScore)} pts</div>
-            `;
-        }
-
-        function fullResetAndGoHome() {
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            if (aiInterval) clearInterval(aiInterval);
-            gameActive = false;
-            if (osc && gain) gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-            playerScore = 0; aiScore = 0;
-            currentItem = null; shieldActive = false;
-            answering = false; waitingFeedback = false;
-            refreshItemUI();
-            updateProgressUI();
-            podiumScreen.classList.remove('active-screen');
-            raceScreen.classList.remove('active-screen');
-            homeScreen.classList.add('active-screen');
-        }
-
-        function restartRaceFromScratch() {
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            if (aiInterval) clearInterval(aiInterval);
-            playerScore = 0; aiScore = 0;
-            currentItem = null; shieldActive = false;
-            answering = false; waitingFeedback = false;
-            gameActive = true;
-            updateProgressUI();
-            refreshItemUI();
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                osc = audioCtx.createOscillator();
-                gain = audioCtx.createGain();
-                osc.type = "sawtooth";
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                gain.gain.value = 0.0;
-            } else gain.gain.setTargetAtTime(0.09, audioCtx.currentTime, 0.1);
-            homeScreen.classList.remove('active-screen');
-            podiumScreen.classList.remove('active-screen');
-            raceScreen.classList.add('active-screen');
-            loadNewQuestion();
-            if (aiInterval) clearInterval(aiInterval);
-            aiInterval = setInterval(() => { if(gameActive) aiAdvance(); }, 1850);
-        }
-
-        document.getElementById('ignitionBtn').onclick = () => { restartRaceFromScratch(); };
-        nextQuestionBtn.onclick = () => { nextQuizStep(); };
-        useItemBtn.onclick = () => { activateItem(); };
-        document.getElementById('homeNavBtn').onclick = () => { fullResetAndGoHome(); };
-        document.getElementById('restartNavBtn').onclick = () => { restartRaceFromScratch(); };
-
-        refreshItemUI();
-        updateProgressUI();
-    })();
+    function showLeader() {
+        nav('leader');
+        const list = document.getElementById('leaderboard-list');
+        const sorted = [...state.players].sort((a,b) => b.score - a.score);
+        list.innerHTML = sorted.map((p, i) => `
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
+                <span><b>#${i+1}</b> ${p.name}</span>
+                <span class="hud-val">${p.score} KM/H</span>
+            </div>
+        `).join('');
+    }
 </script>
+
 </body>
 </html>
