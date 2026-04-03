@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AMIAR KEMPF | ARCADE VELOCITY</title>
+    <title>AMIAR KEMPF | SCUDERIA INFINITY 3D</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Barlow+Condensed:ital,wght@1,900&display=swap" rel="stylesheet">
     
@@ -11,229 +11,256 @@
         :root {
             --ferrari-red: #cc0000;
             --gold: #ffcf40;
-            --carbon: #111;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Barlow Condensed', sans-serif; overflow: hidden; touch-action: none; }
         
-        body { background: var(--carbon); color: white; height: 100vh; display: flex; justify-content: center; }
+        body { background: #000; color: white; height: 100vh; display: flex; justify-content: center; }
 
-        .app-shell {
-            width: 100%; max-width: 450px; height: 100vh;
-            display: flex; flex-direction: column; position: relative;
-            border-left: 2px solid #222; border-right: 2px solid #222;
-        }
+        /* --- 3D CANVAS --- */
+        #gameCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
 
-        /* --- UI HEADER --- */
-        .game-header {
-            padding: 40px 20px 10px; background: rgba(0,0,0,0.8);
-            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        /* --- UI OVERLAY --- */
+        .ui-layer {
+            position: relative; z-index: 10; width: 100%; max-width: 500px; height: 100vh;
+            display: flex; flex-direction: column; pointer-events: none;
         }
-        .brand { font-style: italic; font-size: 1.5rem; letter-spacing: -1px; }
+        .ui-layer > * { pointer-events: auto; }
+
+        .header {
+            padding: 50px 30px; display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+        .brand { font-style: italic; font-size: 1.8rem; letter-spacing: -1px; }
         .brand span { color: var(--ferrari-red); }
 
-        .stats { font-family: 'Orbitron'; color: var(--gold); font-size: 1rem; text-align: right; }
-
-        /* --- GAME CANVAS --- */
-        #gameCanvas {
-            flex: 1; background: #222; width: 100%; display: block;
+        /* --- HUD --- */
+        .hud {
+            position: absolute; top: 120px; width: 100%; text-align: center;
         }
+        .speed-box {
+            display: inline-block; padding: 10px 30px; background: var(--glass);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 50px; backdrop-filter: blur(10px);
+        }
+        .speed-num { font-family: 'Orbitron'; font-size: 2rem; color: var(--gold); }
+        .kmh { font-size: 0.7rem; letter-spacing: 3px; color: #888; margin-top: -5px; }
 
         /* --- CONTROLS --- */
         .controls {
-            height: 150px; background: rgba(0,0,0,0.9);
-            display: flex; justify-content: space-around; align-items: center;
-            padding-bottom: env(safe-area-inset-bottom); border-top: 2px solid var(--ferrari-red);
+            margin-top: auto; height: 180px; display: flex; justify-content: space-around; align-items: center;
+            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+            padding-bottom: 30px;
         }
-        .ctrl-btn {
-            width: 80px; height: 80px; background: #333; border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 2rem; color: white; border: 3px solid var(--ferrari-red);
-            box-shadow: 0 0 20px rgba(204, 0, 0, 0.3); cursor: pointer;
+        .btn-ctrl {
+            width: 90px; height: 90px; border-radius: 50%; border: 2px solid var(--ferrari-red);
+            background: rgba(0,0,0,0.5); color: white; font-size: 2rem; display: flex;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
+            box-shadow: 0 0 30px rgba(204, 0, 0, 0.2);
         }
-        .ctrl-btn:active { background: var(--ferrari-red); transform: scale(0.9); }
+        .btn-ctrl:active { background: var(--ferrari-red); transform: scale(0.9); }
 
-        /* --- OVERLAYS --- */
+        /* --- SCREENS --- */
         .overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 100; text-align: center;
-            padding: 40px;
+            background: rgba(0,0,0,0.9); z-index: 100; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; padding: 40px; text-align: center;
         }
+        .title-3d { font-size: 3rem; font-style: italic; color: var(--ferrari-red); margin-bottom: 10px; }
         .btn-start {
-            background: var(--ferrari-red); color: white; border: none; padding: 20px 40px;
-            font-size: 1.5rem; font-weight: 900; font-style: italic; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
-            margin-top: 20px; cursor: pointer;
+            background: var(--ferrari-red); border: none; padding: 20px 50px; color: white;
+            font-size: 1.5rem; font-weight: 900; clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            margin-top: 30px; cursor: pointer;
         }
 
         .credits {
-            position: absolute; bottom: 160px; width: 100%; text-align: center;
-            font-size: 0.7rem; color: #555; letter-spacing: 2px;
+            position: absolute; bottom: 200px; width: 100%; text-align: center;
+            font-size: 0.6rem; letter-spacing: 4px; color: #444; text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-<div class="app-shell">
-    <div class="game-header">
-        <div class="brand">AMIAR <span>KEMPF</span></div>
-        <div class="stats">SPEED: <span id="speedUI">0</span> KM/H</div>
-    </div>
+<canvas id="gameCanvas"></canvas>
 
-    <canvas id="gameCanvas"></canvas>
+<div class="ui-layer">
+    <header class="header">
+        <div class="brand">AMIAR <span>KEMPF</span></div>
+        <div style="font-family: Orbitron; font-size: 0.6rem; color: #555;">V.3.0 PLATINUM</div>
+    </header>
+
+    <div class="hud">
+        <div class="speed-box">
+            <div class="speed-num" id="speedDisplay">0</div>
+            <div class="kmh">KM/H VELOCITY</div>
+        </div>
+    </div>
 
     <div class="credits">Produziert von Wowa & Amiar Kempf</div>
 
-    <div id="start-screen" class="overlay">
-        <h1 style="font-size: 3rem; font-style: italic; color: var(--ferrari-red);">SCUDERIA ARCADE</h1>
-        <p style="opacity: 0.6; margin-top: 10px;">Weiche Hindernissen aus & sammle Gold!</p>
-        <button class="btn-start" onclick="initGame()">MOTOR STARTEN</button>
-    </div>
-
-    <div id="game-over" class="overlay" style="display: none;">
-        <h1 style="font-size: 2.5rem; font-style: italic;">ZIELGERADE</h1>
-        <p style="opacity: 0.6;">Deine Endgeschwindigkeit:</p>
-        <h2 id="final-speed" style="font-size: 4rem; color: var(--gold); font-family: 'Orbitron';">0</h2>
-        <button class="btn-start" onclick="location.reload()">NEUSTART</button>
-    </div>
-
     <div class="controls">
-        <div class="ctrl-btn" id="btn-left">◀</div>
-        <div class="ctrl-btn" id="btn-right">▶</div>
+        <div class="btn-ctrl" id="leftBtn">◀</div>
+        <div class="btn-ctrl" id="rightBtn">▶</div>
+    </div>
+
+    <div id="startScreen" class="overlay">
+        <h1 class="title-3d">INFINITY 3D</h1>
+        <p style="opacity: 0.5;">Weiche den Sektoren aus • Sammle die Gold-Energie</p>
+        <button class="btn-start" onclick="startGame()">MISSION STARTEN</button>
+    </div>
+
+    <div id="gameOver" class="overlay" style="display: none;">
+        <h1 class="title-3d">ZIEL ERREICHT</h1>
+        <p style="opacity: 0.5;">Deine Höchstgeschwindigkeit:</p>
+        <h2 id="finalSpeed" style="font-family: Orbitron; font-size: 4rem; color: var(--gold);">0</h2>
+        <button class="btn-start" onclick="location.reload()">NEUSTART</button>
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    const speedUI = document.getElementById('speedUI');
-
+    let scene, camera, renderer, car, road, particles;
+    let obstacles = [], items = [];
+    let speed = 0, targetX = 0, score = 0;
     let gameActive = false;
-    let score = 0;
-    let player = { x: 0, y: 0, w: 50, h: 80, speed: 5 };
-    let obstacles = [];
-    let items = [];
-    let frame = 0;
 
-    function resize() {
-        canvas.width = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        player.x = canvas.width / 2 - player.w / 2;
-        player.y = canvas.height - 120;
-    }
+    function init3D() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        
+        renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('gameCanvas'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
 
-    window.addEventListener('resize', resize);
-    resize();
+        // Beleuchtung
+        const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambient);
+        const point = new THREE.PointLight(0xcc0000, 2, 50);
+        point.position.set(0, 5, 5);
+        scene.add(point);
 
-    // Steuerung
-    let moveLeft = false;
-    let moveRight = false;
+        // Das Auto (Ferrari Style 3D Mesh)
+        const body = new THREE.BoxGeometry(1.2, 0.6, 2.5);
+        const mat = new THREE.MeshStandardMaterial({ color: 0xcc0000, metalness: 0.8, roughness: 0.2 });
+        car = new THREE.Mesh(body, mat);
+        car.position.y = 0.3;
+        scene.add(car);
 
-    document.getElementById('btn-left').onpointerdown = () => moveLeft = true;
-    document.getElementById('btn-left').onpointerup = () => moveLeft = false;
-    document.getElementById('btn-right').onpointerdown = () => moveRight = true;
-    document.getElementById('btn-right').onpointerup = () => moveRight = false;
-    
-    // Tastatur Support
-    window.onkeydown = (e) => {
-        if(e.key === "ArrowLeft") moveLeft = true;
-        if(e.key === "ArrowRight") moveRight = true;
-    };
-    window.onkeyup = (e) => {
-        if(e.key === "ArrowLeft") moveLeft = false;
-        if(e.key === "ArrowRight") moveRight = false;
-    };
+        // Cockpit-Glas
+        const glassGeo = new THREE.BoxGeometry(1, 0.4, 0.8);
+        const glassMat = new THREE.MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0.8 });
+        const glass = new THREE.Mesh(glassGeo, glassMat);
+        glass.position.set(0, 0.4, 0.2);
+        car.add(glass);
 
-    function initGame() {
-        document.getElementById('start-screen').style.display = 'none';
-        gameActive = true;
-        score = 0;
-        obstacles = [];
-        items = [];
-        loop();
+        // Straße
+        const roadGeo = new THREE.PlaneGeometry(15, 1000);
+        const roadMat = new THREE.MeshStandardMaterial({ color: 0x111111 });
+        road = new THREE.Mesh(roadGeo, roadMat);
+        road.rotation.x = -Math.PI / 2;
+        scene.add(road);
+
+        // Sterne / Partikel
+        const partGeo = new THREE.BufferGeometry();
+        const partCount = 1000;
+        const posArr = new Float32Array(partCount * 3);
+        for(let i=0; i<partCount*3; i++) posArr[i] = (Math.random()-0.5) * 100;
+        partGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        particles = new THREE.Points(partGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.1 }));
+        scene.add(particles);
+
+        camera.position.set(0, 3, 7);
+        camera.lookAt(0, 0, 0);
     }
 
     function spawnEntity() {
-        if (frame % 60 === 0) {
-            obstacles.push({ x: Math.random() * (canvas.width - 40), y: -100, w: 40, h: 40, type: 'rock' });
+        if (!gameActive) return;
+        
+        // Hindernisse
+        if (Math.random() < 0.05) {
+            const obsGeo = new THREE.BoxGeometry(2, 2, 2);
+            const obsMat = new THREE.MeshStandardMaterial({ color: 0x333333 });
+            const obs = new THREE.Mesh(obsGeo, obsMat);
+            obs.position.set((Math.random()-0.5)*10, 1, -100);
+            scene.add(obs);
+            obstacles.push(obs);
         }
-        if (frame % 150 === 0) {
-            items.push({ x: Math.random() * (canvas.width - 30), y: -100, w: 30, h: 30, type: 'gold' });
+
+        // Gold Items
+        if (Math.random() < 0.02) {
+            const itemGeo = new THREE.TorusGeometry(0.5, 0.2, 16, 32);
+            const itemMat = new THREE.MeshStandardMaterial({ color: 0xffcf40, emissive: 0xffcf40, emissiveIntensity: 0.5 });
+            const item = new THREE.Mesh(itemGeo, itemMat);
+            item.position.set((Math.random()-0.5)*10, 1, -100);
+            scene.add(item);
+            items.push(item);
         }
     }
 
-    function loop() {
-        if (!gameActive) return;
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        // Hintergrund (Strasse)
-        ctx.fillStyle = '#333';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-        ctx.setLineDash([20, 20]);
-        ctx.beginPath();
-        ctx.moveTo(canvas.width / 2, 0);
-        ctx.lineTo(canvas.width / 2, canvas.height);
-        ctx.stroke();
-
-        // Spieler Steuerung
-        if (moveLeft && player.x > 0) player.x -= 7;
-        if (moveRight && player.x < canvas.width - player.w) player.x += 7;
-
-        // Spieler zeichnen (Ferrari Style Car)
-        ctx.fillStyle = '#cc0000'; // Rosso Corsa
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = '#cc0000';
-        ctx.fillRect(player.x, player.y, player.w, player.h); // Auto Körper
-        ctx.fillStyle = '#000';
-        ctx.fillRect(player.x-5, player.y+10, 10, 20); // Reifen L
-        ctx.fillRect(player.x+player.w-5, player.y+10, 10, 20); // Reifen R
-        ctx.shadowBlur = 0;
-
-        // Hindernisse bewegen & zeichnen
-        obstacles.forEach((obs, i) => {
-            obs.y += 5 + (score / 500);
-            ctx.fillStyle = '#555';
-            ctx.beginPath();
-            ctx.arc(obs.x + 20, obs.y + 20, 20, 0, Math.PI*2);
-            ctx.fill();
-
-            // Kollision
-            if (player.x < obs.x + obs.w && player.x + player.w > obs.x && player.y < obs.y + obs.h && player.y + player.h > obs.y) {
-                gameOver();
-            }
-            if (obs.y > canvas.height) obstacles.splice(i, 1);
-        });
-
-        // Items bewegen & zeichnen
-        items.forEach((item, i) => {
-            item.y += 4;
-            ctx.fillStyle = '#ffcf40';
-            ctx.shadowBlur = 10; ctx.shadowColor = '#ffcf40';
-            ctx.beginPath();
-            ctx.arc(item.x + 15, item.y + 15, 12, 0, Math.PI*2);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // Einsammeln
-            if (player.x < item.x + item.w && player.x + player.w > item.x && player.y < item.y + item.h && player.y + player.h > item.y) {
-                items.splice(i, 1);
-                score += 150;
-            }
-        });
-
-        score += 1;
-        speedUI.innerText = Math.floor(score / 5);
-        frame++;
-        spawnEntity();
-        requestAnimationFrame(loop);
+    function startGame() {
+        document.getElementById('startScreen').style.display = 'none';
+        gameActive = true;
+        animate();
     }
 
     function gameOver() {
         gameActive = false;
-        document.getElementById('game-over').style.display = 'flex';
-        document.getElementById('final-speed').innerText = Math.floor(score / 5);
+        document.getElementById('gameOver').style.display = 'flex';
+        document.getElementById('finalSpeed').innerText = Math.floor(score);
     }
+
+    // Steuerung
+    let moveDir = 0;
+    document.getElementById('leftBtn').onpointerdown = () => moveDir = 5;
+    document.getElementById('rightBtn').onpointerdown = () => moveDir = -5;
+    document.getElementById('leftBtn').onpointerup = document.getElementById('rightBtn').onpointerup = () => moveDir = 0;
+
+    function animate() {
+        if (!gameActive) return;
+        requestAnimationFrame(animate);
+
+        // Auto Bewegung
+        car.position.x += (targetX - car.position.x) * 0.1;
+        targetX += moveDir * 0.05;
+        targetX = Math.max(-6, Math.min(6, targetX));
+        car.rotation.z = -(targetX - car.position.x) * 0.5; // Neigung in Kurven
+
+        // Welt Bewegung
+        obstacles.forEach((o, i) => {
+            o.position.z += 1.5 + (score/1000);
+            // Kollision
+            if (Math.abs(o.position.z - car.position.z) < 1.5 && Math.abs(o.position.x - car.position.x) < 1.5) {
+                gameOver();
+            }
+            if (o.position.z > 10) { scene.remove(o); obstacles.splice(i, 1); }
+        });
+
+        items.forEach((item, i) => {
+            item.position.z += 1.2;
+            item.rotation.y += 0.1;
+            // Sammeln
+            if (Math.abs(item.position.z - car.position.z) < 1.5 && Math.abs(item.position.x - car.position.x) < 1.5) {
+                scene.remove(item);
+                items.splice(i, 1);
+                score += 500;
+            }
+        });
+
+        score += 1;
+        document.getElementById('speedDisplay').innerText = Math.floor(score / 10);
+        
+        spawnEntity();
+        renderer.render(scene, camera);
+    }
+
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+
+    init3D();
 </script>
 </body>
 </html>
