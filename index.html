@@ -5,80 +5,125 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>SCUDERIA PRO</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <title>SCUDERIA INFINITY | PRESTIGE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Inter:wght@300;600&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #d4af37; --red: #ff0000; --neon: #00ffff; }
+        :root {
+            --gold: #d4af37;
+            --gold-bright: #f7ef8a;
+            --carbon: #0a0a0a;
+            --red: #ff0000;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { background: #000; color: white; font-family: 'Orbitron', sans-serif; overflow: hidden; height: 100vh; }
+        body { background: var(--carbon); color: white; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; }
 
-        /* UI ELEMENTS */
-        #hud { position: absolute; inset: 0; pointer-events: none; z-index: 100; opacity: 0; transition: opacity 1s; }
-        .panel { position: absolute; background: rgba(0,0,0,0.8); padding: 15px; border-radius: 20px; border: 2px solid rgba(212,175,55,0.3); backdrop-filter: blur(10px); }
-        .top-left { top: env(safe-area-inset-top, 40px); left: 20px; }
-        .top-right { top: env(safe-area-inset-top, 40px); right: 20px; text-align: right; }
-        .bottom-right { bottom: 40px; right: 20px; border-radius: 50%; width: 100px; height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        /* --- PRESTIGE MENU --- */
+        .overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+        .menu-content { text-align: center; width: 80%; max-width: 400px; }
+        .logo-main { font-family: 'Orbitron'; font-size: 3rem; font-weight: 900; letter-spacing: 12px; color: var(--gold); text-shadow: 0 0 30px rgba(212,175,55,0.3); margin-bottom: 5px; }
+        .subtitle { font-size: 0.7rem; letter-spacing: 5px; color: rgba(255,255,255,0.4); text-transform: uppercase; margin-bottom: 50px; }
 
-        #speed-num { font-size: 2.5rem; color: var(--gold); line-height: 1; }
-        #time-num { font-size: 2.5rem; color: var(--red); text-shadow: 0 0 10px var(--red); }
-        .label { font-size: 0.5rem; letter-spacing: 2px; opacity: 0.6; text-transform: uppercase; }
+        .btn-luxury {
+            width: 100%; padding: 20px; background: none; border: 1px solid rgba(212,175,55,0.3);
+            color: var(--gold); font-family: 'Orbitron'; font-weight: 900; letter-spacing: 3px;
+            cursor: pointer; position: relative; overflow: hidden; transition: 0.3s; margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .btn-luxury:active { background: var(--gold); color: black; transform: scale(0.98); }
 
-        /* OVERLAYS */
-        .screen { position: fixed; inset: 0; background: radial-gradient(circle, #111 0%, #000 100%); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .btn-start { background: linear-gradient(45deg, #ae8625, #f7ef8a, #d4af37); border: none; color: #000; padding: 20px 60px; font-family: 'Orbitron'; font-weight: 900; font-size: 1.5rem; cursor: pointer; border-radius: 50px; box-shadow: 0 0 30px rgba(212,175,55,0.4); }
+        /* --- MODERN HUD --- */
+        #hud {
+            position: absolute; inset: 0; pointer-events: none; z-index: 100; opacity: 0; visibility: hidden;
+            transition: opacity 1s; padding: env(safe-area-inset-top) 30px env(safe-area-inset-bottom) 30px;
+        }
+        .hud-top { display: flex; justify-content: space-between; padding-top: 20px; }
+        .hud-card { background: rgba(0,0,0,0.6); border-left: 3px solid var(--gold); padding: 10px 20px; backdrop-filter: blur(10px); }
         
-        /* TOUCH INPUT ZONES */
-        #touch-L { position: absolute; left: 0; top: 0; width: 35%; height: 100%; z-index: 50; }
-        #touch-R { position: absolute; right: 0; top: 0; width: 35%; height: 100%; z-index: 50; }
-        #touch-G { position: absolute; left: 35%; top: 0; width: 30%; height: 100%; z-index: 50; }
+        #speedometer {
+            position: absolute; bottom: 40px; right: 30px; width: 140px; height: 140px;
+            border: 2px solid rgba(255,255,255,0.1); border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .speed-val { font-family: 'Orbitron'; font-size: 3rem; color: var(--gold-bright); line-height: 1; }
+        
+        /* --- GAME OVER --- */
+        #game-over { transform: translateY(100%); background: rgba(0,0,0,0.95); }
 
-        #msg { position: fixed; top: 20%; width: 100%; text-align: center; font-size: 4rem; color: var(--gold); opacity: 0; transition: 0.5s; z-index: 200; pointer-events: none; font-weight: 900; }
+        /* --- CONTROLS --- */
+        .touch-zone { position: absolute; top: 0; height: 100%; z-index: 50; }
+        #ctrl-L { left: 0; width: 35%; }
+        #ctrl-R { right: 0; width: 35%; }
+        #ctrl-G { left: 35%; width: 30%; }
+
+        #stage-notif {
+            position: fixed; top: 30%; width: 100%; text-align: center;
+            font-family: 'Orbitron'; font-size: 3rem; color: var(--gold);
+            opacity: 0; transform: scale(0.5); transition: 0.5s; z-index: 200;
+        }
     </style>
 </head>
 <body>
 
-    <div id="start-screen" class="screen">
-        <div style="font-size: 0.8rem; letter-spacing: 5px; margin-bottom: 10px;">AMIAR KEMPF PRESENTS</div>
-        <h1 style="font-size: 4rem; letter-spacing: 15px; color: var(--gold); text-shadow: 0 0 20px rgba(212,175,55,0.5);">SCUDERIA</h1>
-        <button class="btn-start" onclick="beginRace()">START</button>
+    <div id="main-menu" class="overlay">
+        <div class="menu-content">
+            <div class="logo-main">SCUDERIA</div>
+            <div class="subtitle">Infinity Prestige</div>
+            <button class="btn-luxury" onclick="startLegacyRace()">RENNEN STARTEN</button>
+            <button class="btn-luxury" style="font-size: 0.6rem; opacity: 0.6;">GARAGE (COMING SOON)</button>
+        </div>
     </div>
-
-    <div id="game-over" class="screen" style="display: none;">
-        <h1 style="color: var(--red); font-size: 4rem;">RACE OVER</h1>
-        <div id="result" style="margin: 20px 0; font-size: 1.5rem; color: var(--gold);"></div>
-        <button class="btn-start" style="font-size: 1rem;" onclick="location.reload()">NOCHMAL</button>
-    </div>
-
-    <div id="msg">STAGE UP!</div>
 
     <div id="hud">
-        <div class="panel top-left">
-            <div class="label">Fahrer</div>
-            <div style="font-size: 1rem; color: #fff;">SCUDERIA PILOT</div>
-            <div class="label" style="margin-top: 10px;">Rekord</div>
-            <div id="best-score" style="color: var(--gold);">0m</div>
+        <div class="hud-top">
+            <div class="hud-card">
+                <div style="font-size: 0.6rem; color: var(--gold);">PILOT</div>
+                <div style="font-size: 1rem; font-weight: 600;">AMIAR KEMPF</div>
+            </div>
+            <div class="hud-card" style="text-align: right; border-left: none; border-right: 3px solid var(--red);">
+                <div style="font-size: 0.6rem; color: var(--red);">ZEITLIMIT</div>
+                <div id="time-val" style="font-family: 'Orbitron'; font-size: 1.5rem;">30</div>
+            </div>
         </div>
-        <div class="panel top-right">
-            <div class="label">Zeitlimit</div>
-            <div id="time-num">30</div>
+        
+        <div id="speedometer">
+            <div class="speed-val" id="speed-num">0</div>
+            <div style="font-size: 0.5rem; letter-spacing: 2px; color: var(--gold);">KM/H</div>
         </div>
-        <div class="panel bottom-right">
-            <div id="speed-num">00</div>
-            <div class="label">km/h</div>
+
+        <div style="position: absolute; bottom: 40px; left: 30px;" class="hud-card">
+            <div style="font-size: 0.6rem; color: var(--gold);">DISTANZ</div>
+            <div id="dist-val" style="font-family: 'Orbitron';">0 M</div>
         </div>
     </div>
 
-    <div id="touch-L"></div><div id="touch-G"></div><div id="touch-R"></div>
+    <div id="stage-notif">LEGENDARY</div>
+
+    <div id="game-over" class="overlay">
+        <div class="logo-main" style="color: var(--red);">ZIEL</div>
+        <div id="final-stats" style="margin: 30px 0; letter-spacing: 2px;"></div>
+        <button class="btn-luxury" onclick="location.reload()">ERNEUT STARTEN</button>
+    </div>
+
+    <div id="ctrl-L" class="touch-zone"></div>
+    <div id="ctrl-G" class="touch-zone"></div>
+    <div id="ctrl-R" class="touch-zone"></div>
 
     <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
 
-        let scene, camera, renderer, car, checkpoint, grid, worldSpeed = 0;
+        let scene, camera, renderer, car, checkpoint, grid, engineSound;
         let speed = 0, rotation = 0, distance = 0, timer = 30, stage = 1;
-        let input = { l: false, r: false, g: false }, active = false;
-        let audioCtx, osc, gain;
+        let input = { l: false, r: false, g: false }, gameRunning = false;
         const obstacles = [];
 
+        // Audio Setup
+        let audioCtx, osc, gain;
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             osc = audioCtx.createOscillator();
@@ -89,96 +134,104 @@
             osc.start();
         }
 
-        function sfx(freq, type, time) {
-            if(!audioCtx) return;
-            const o = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            o.type = type; o.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.3, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + time);
-            o.connect(g); g.connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + time);
-        }
-
-        function createCar() {
+        function createLegendaryCar() {
             const group = new THREE.Group();
-            // Karosserie
-            const body = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.4, 2.5), new THREE.MeshStandardMaterial({color: 0xcc0000, metalness: 0.9, roughness: 0.1}));
-            body.position.y = 0.4;
+            
+            // Carbon-Body
+            const body = new THREE.Mesh(
+                new THREE.BoxGeometry(1.2, 0.4, 2.6),
+                new THREE.MeshStandardMaterial({color: 0x0a0a0a, metalness: 1, roughness: 0.1})
+            );
+            body.position.y = 0.3;
             group.add(body);
-            // Cockpit
-            const glass = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.4, 1), new THREE.MeshStandardMaterial({color: 0x000000, metalness: 1}));
-            glass.position.set(0, 0.7, 0.2);
+
+            // Red Trim / Accents
+            const trim = new THREE.Mesh(
+                new THREE.BoxGeometry(1.25, 0.05, 1.5),
+                new THREE.MeshStandardMaterial({color: 0xcc0000})
+            );
+            trim.position.set(0, 0.35, 0.3);
+            group.add(trim);
+
+            // Cockpit (Luxus-Glas)
+            const glass = new THREE.Mesh(
+                new THREE.BoxGeometry(0.85, 0.35, 1.2),
+                new THREE.MeshStandardMaterial({color: 0x000000, metalness: 1, transparent: true, opacity: 0.8})
+            );
+            glass.position.set(0, 0.65, 0.1);
             group.add(glass);
-            // Spoiler
-            const wing = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.1, 0.4), new THREE.MeshStandardMaterial({color: 0x111111}));
-            wing.position.set(0, 0.8, -1.1);
-            group.add(wing);
-            // Scheinwerfer
-            const lightL = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.1), new THREE.MeshBasicMaterial({color: 0xffffff}));
-            lightL.position.set(0.4, 0.4, 1.25);
-            group.add(lightL);
-            const lightR = lightL.clone(); lightR.position.x = -0.4;
-            group.add(lightR);
+
+            // Gold Headlights
+            const lightGeo = new THREE.BoxGeometry(0.3, 0.1, 0.1);
+            const lightMat = new THREE.MeshBasicMaterial({color: 0xf7ef8a});
+            const l1 = new THREE.Mesh(lightGeo, lightMat);
+            l1.position.set(0.4, 0.3, 1.3);
+            group.add(l1);
+            const l2 = l1.clone(); l2.position.x = -0.4;
+            group.add(l2);
 
             return group;
         }
 
-        function init() {
+        function initScene() {
             scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x000000, 10, 60);
+            scene.background = new THREE.Color(0x000000);
+            scene.fog = new THREE.Fog(0x000000, 10, 70);
+
             camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.1, 1000);
             renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setPixelRatio(window.devicePixelRatio);
             renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
             document.body.appendChild(renderer.domElement);
 
-            // Light
-            scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+            // Lighting
             const sun = new THREE.DirectionalLight(0xd4af37, 2);
-            sun.position.set(10, 20, 10);
+            sun.position.set(5, 15, 10);
             scene.add(sun);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
-            // Car & Grid
-            car = createCar(); scene.add(car);
-            grid = new THREE.GridHelper(1000, 100, 0xd4af37, 0x111111);
+            // World
+            grid = new THREE.GridHelper(1000, 100, 0xd4af37, 0x222222);
             scene.add(grid);
 
-            // Checkpoint
-            checkpoint = new THREE.Mesh(new THREE.TorusGeometry(6, 0.2, 16, 50), new THREE.MeshBasicMaterial({color: 0xd4af37}));
-            checkpoint.position.z = -120;
+            car = createLegendaryCar();
+            scene.add(car);
+
+            checkpoint = new THREE.Mesh(
+                new THREE.TorusGeometry(6, 0.1, 16, 100),
+                new THREE.MeshBasicMaterial({color: 0xd4af37})
+            );
+            checkpoint.position.z = -100;
             scene.add(checkpoint);
 
             // Obstacles
-            for(let i=0; i<20; i++) {
-                const o = new THREE.Mesh(new THREE.BoxGeometry(2, 6, 2), new THREE.MeshStandardMaterial({color: 0x222222, emissive: 0x110000}));
-                o.position.set((Math.random()-0.5)*50, 3, -i*40 - 60);
+            for(let i=0; i<15; i++) {
+                const o = new THREE.Mesh(new THREE.BoxGeometry(2, 8, 2), new THREE.MeshStandardMaterial({color: 0x111111}));
+                o.position.set((Math.random()-0.5)*60, 4, -i*40 - 50);
                 scene.add(o); obstacles.push(o);
             }
 
-            // Controls
-            const setupTouch = (id, key) => {
+            // Input Handler
+            const bind = (id, k) => {
                 const el = document.getElementById(id);
-                el.ontouchstart = (e) => { e.preventDefault(); input[key] = true; };
-                el.ontouchend = () => input[key] = false;
+                el.ontouchstart = (e) => { e.preventDefault(); input[k] = true; };
+                el.ontouchend = () => input[k] = false;
             };
-            setupTouch('touch-L', 'l'); setupTouch('touch-R', 'r'); setupTouch('touch-G', 'g');
+            bind('ctrl-L', 'l'); bind('ctrl-R', 'r'); bind('ctrl-G', 'g');
 
-            document.getElementById('best-score').innerText = (localStorage.getItem('scud_best') || 0) + "m";
-            
-            setInterval(() => { if(active && timer > 0) timer--; }, 1000);
-            update();
+            animate();
+            setInterval(() => { if(gameRunning && timer > 0) timer--; }, 1000);
         }
 
-        function update() {
-            if(!active) return;
-            requestAnimationFrame(update);
+        function animate() {
+            if(!gameRunning) return;
+            requestAnimationFrame(animate);
 
-            if(timer <= 0) return finish();
+            if(timer <= 0) return showGameOver();
 
-            // Drive Physics
-            if(input.g) speed = THREE.MathUtils.lerp(speed, 0.9, 0.03);
-            else speed = THREE.MathUtils.lerp(speed, 0, 0.02);
+            // Physics
+            if(input.g) speed = THREE.MathUtils.lerp(speed, 0.95, 0.03);
+            else speed = THREE.MathUtils.lerp(speed, 0, 0.015);
 
             if(input.l) { rotation += 0.045; car.rotation.z = 0.2; }
             else if(input.r) { rotation -= 0.045; car.rotation.z = -0.2; }
@@ -189,55 +242,59 @@
             car.rotation.y = rotation;
             distance += speed;
 
-            if(osc) osc.frequency.setTargetAtTime(40 + (speed * 180), audioCtx.currentTime, 0.1);
+            // Engine Audio Sync
+            if(osc) osc.frequency.setTargetAtTime(40 + (speed * 200), audioCtx.currentTime, 0.1);
 
-            // Checkpoint Hit
+            // Checkpoint Collision
             if(car.position.distanceTo(checkpoint.position) < 8) {
                 timer += 15; stage++;
-                sfx(700, 'sine', 0.4);
                 checkpoint.position.z -= 300;
                 checkpoint.position.x = car.position.x + (Math.random()-0.5)*40;
-                document.getElementById('msg').style.opacity = 1;
-                setTimeout(() => document.getElementById('msg').style.opacity = 0, 1000);
+                
+                const notif = document.getElementById('stage-notif');
+                notif.style.opacity = 1; notif.style.transform = "scale(1.2)";
+                setTimeout(() => { notif.style.opacity = 0; notif.style.transform = "scale(0.5)"; }, 1000);
             }
 
-            // Obstacle Hits
+            // Obstacle Collision
             obstacles.forEach(o => {
                 if(car.position.distanceTo(o.position) < 2.5) {
-                    speed = -0.3; sfx(100, 'sawtooth', 0.2);
+                    speed = -0.2;
                 }
-                if(o.position.z > car.position.z + 30) {
+                if(o.position.z > car.position.z + 20) {
                     o.position.z = car.position.z - 400;
-                    o.position.x = car.position.x + (Math.random()-0.5)*80;
+                    o.position.x = car.position.x + (Math.random()-0.5)*100;
                 }
             });
 
-            // Camera Action
-            camera.fov = 65 + (speed * 35); camera.updateProjectionMatrix();
+            // Camera Follow
+            camera.fov = 60 + (speed * 40); camera.updateProjectionMatrix();
             const camPos = new THREE.Vector3(car.position.x - Math.sin(rotation)*8, 4, car.position.z - Math.cos(rotation)*8);
             camera.position.lerp(camPos, 0.1);
             camera.lookAt(car.position);
 
-            // HUD
-            document.getElementById('speed-num').innerText = Math.floor(speed * 360);
-            document.getElementById('time-num').innerText = timer;
+            // HUD Update
+            document.getElementById('speed-num').innerText = Math.floor(speed * 412);
+            document.getElementById('time-val').innerText = timer;
+            document.getElementById('dist-val').innerText = Math.floor(distance) + " M";
+            
             renderer.render(scene, camera);
         }
 
-        function finish() {
-            active = false;
-            const best = localStorage.getItem('scud_best') || 0;
-            if(distance > best) localStorage.setItem('scud_best', Math.floor(distance));
-            document.getElementById('game-over').style.display = 'flex';
-            document.getElementById('result').innerText = `Distanz: ${Math.floor(distance)}m`;
+        function showGameOver() {
+            gameRunning = false;
+            document.getElementById('game-over').style.transform = "translateY(0)";
+            document.getElementById('final-stats').innerText = `ERGEBNIS: ${Math.floor(distance)} METER`;
             if(gain) gain.gain.value = 0;
         }
 
-        window.beginRace = () => {
-            initAudio(); init();
-            document.getElementById('start-screen').style.display = 'none';
+        window.startLegacyRace = () => {
+            initAudio();
+            initScene();
+            document.getElementById('main-menu').style.transform = "translateY(-100%)";
             document.getElementById('hud').style.opacity = 1;
-            active = true;
+            document.getElementById('hud').style.visibility = "visible";
+            gameRunning = true;
         };
     </script>
 </body>
