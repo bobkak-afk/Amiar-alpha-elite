@@ -3,816 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>AMIAR KEMPF | ELITE VELOCITY · ÉDITION LUXE</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&family=Inter:opsz,wght@14..32,300;14..32,600;14..32,800&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>AMIAR KEMPF | AURA VELOCITY</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Outfit:wght@100;300;600;900&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        :root {
+            --aura-gold: radial-gradient(circle, #f7ef8a 0%, #d4af37 40%, #ae8625 100%);
+            --text-gold: linear-gradient(180deg, #f7ef8a 0%, #d4af37 100%);
+            --bg-obsidian: #030303;
+            --glass-ultra: rgba(255, 255, 255, 0.015);
+            --border-gold: rgba(212, 175, 55, 0.2);
         }
 
-        body {
-            background: radial-gradient(ellipse at 40% 30%, #0b0e1a, #020408);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Inter', sans-serif;
-            padding: 20px;
-            perspective: 1400px;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            background: var(--bg-obsidian); color: white; height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* 3D-Tiefe & animierte Partikel */
-        body::before {
-            content: "";
-            position: fixed;
-            width: 200%;
-            height: 200%;
-            top: -50%;
-            left: -50%;
-            background: radial-gradient(circle at 30% 40%, rgba(0, 210, 255, 0.08) 0%, rgba(212, 175, 55, 0.05) 40%, transparent 70%);
-            animation: rotateSlow 30s infinite linear;
-            pointer-events: none;
-            z-index: 0;
+        /* --- TRAUMHAFTES HINTERGRUND-LICHT --- */
+        .aura-bg {
+            position: absolute; width: 150vw; height: 150vh;
+            background: radial-gradient(circle at 50% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 60%);
+            z-index: 0; animation: pulseAura 12s infinite alternate ease-in-out;
+        }
+        @keyframes pulseAura { 
+            0% { transform: translate(-10%, -10%) scale(1); opacity: 0.5; }
+            100% { transform: translate(5%, 5%) scale(1.2); opacity: 0.8; }
         }
 
-        @keyframes rotateSlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .app-frame {
+            width: 100%; max-width: 450px; height: 100vh;
+            background: rgba(0,0,0,0.2); backdrop-filter: blur(50px);
+            position: relative; z-index: 10; display: flex; flex-direction: column;
+            border-left: 1px solid rgba(255,255,255,0.03); border-right: 1px solid rgba(255,255,255,0.03);
         }
 
-        /* HAUPT-GEHÄUSE – wie polierter Obsidian */
-        .game-shell {
-            width: 100%;
-            max-width: 580px;
-            height: 90vh;
-            max-height: 920px;
-            background: rgba(12, 14, 22, 0.55);
-            backdrop-filter: blur(28px);
-            border-radius: 72px;
-            border: 1px solid rgba(212, 175, 55, 0.45);
-            box-shadow: 0 40px 80px -30px rgba(0,0,0,0.8), inset 0 1px 2px rgba(255,255,255,0.1), 0 0 0 2px rgba(212,175,55,0.2) inset;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            transform: translateZ(15px) rotateX(1.5deg);
-            transition: transform 0.3s ease;
+        /* --- HEADER & BRANDING --- */
+        .header { padding: 70px 40px 30px; text-align: left; }
+        .brand-name { 
+            font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 400; letter-spacing: 12px;
+            background: var(--text-gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            opacity: 0.9;
+        }
+        .edition-tag { 
+            font-size: 0.6rem; letter-spacing: 6px; color: #666; margin-top: 10px; 
+            text-transform: uppercase; font-weight: 300; 
         }
 
-        /* dynamische Lichtkante */
-        .game-shell::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 72px;
-            padding: 2.5px;
-            background: linear-gradient(145deg, rgba(212,175,55,0.6), rgba(0,210,255,0.5), rgba(255,105,180,0.3));
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-            animation: borderFlow 4s infinite alternate;
+        /* --- NAVIGATION (MINIMALISTISCH) --- */
+        .nav-minimal {
+            position: absolute; bottom: 40px; left: 0; right: 0;
+            display: flex; justify-content: center; gap: 40px; z-index: 100;
+        }
+        .nav-dot {
+            width: 8px; height: 8px; background: rgba(255,255,255,0.1);
+            border-radius: 50%; transition: 0.5s; cursor: pointer; border: 1px solid transparent;
+        }
+        .nav-dot.active { background: var(--gold-solid); width: 30px; border-radius: 4px; box-shadow: 0 0 15px #d4af37; }
+
+        /* --- CONTENT SCREENS --- */
+        .screen { display: none; flex: 1; padding: 0 40px; flex-direction: column; justify-content: center; }
+        .screen.active { display: flex; animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
+
+        /* --- LUXURY CARDS --- */
+        .luxury-card {
+            background: var(--glass-ultra); border: 1px solid var(--border-gold);
+            border-radius: 40px; padding: 35px; position: relative;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4); margin-bottom: 30px;
         }
 
-        @keyframes borderFlow {
-            0% { opacity: 0.4; transform: scale(0.98); }
-            100% { opacity: 1; transform: scale(1); }
+        /* --- BUTTONS (AURA STYLE) --- */
+        .btn-aura {
+            background: transparent; border: 1px solid var(--border-gold);
+            padding: 24px; border-radius: 50px; color: #fff; font-size: 0.8rem;
+            letter-spacing: 4px; text-transform: uppercase; font-weight: 600;
+            cursor: pointer; position: relative; transition: 0.5s; overflow: hidden;
         }
-
-        /* HEADER – edel & leicht */
-        .hud-lux {
-            padding: 28px 26px 12px 26px;
-            position: relative;
-            z-index: 5;
-            background: linear-gradient(125deg, rgba(0,0,0,0.5), rgba(0,0,0,0.2));
-            border-bottom: 1px solid rgba(212,175,55,0.4);
-            border-radius: 72px 72px 0 0;
+        .btn-aura::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.2), transparent);
+            transition: 0.5s;
         }
+        .btn-aura:hover::before { left: 100%; }
+        .btn-aura:active { transform: scale(0.98); background: rgba(212, 175, 55, 0.05); }
 
-        .brand-lux {
-            font-family: 'Orbitron', monospace;
-            font-weight: 900;
-            font-size: 1.8rem;
-            letter-spacing: 6px;
-            background: linear-gradient(135deg, #F9F6E0, #E4C580, #FFE5B4);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 10px rgba(212,175,55,0.4);
+        /* --- QUIZ UI --- */
+        .q-text { font-size: 1.8rem; font-weight: 100; color: #eee; line-height: 1.3; margin-bottom: 50px; text-align: left; }
+        .opt-row {
+            padding: 20px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer; font-size: 1.1rem; font-weight: 300; transition: 0.3s;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        .opt-row:hover { color: #d4af37; padding-left: 10px; }
+        .opt-row span { font-family: 'Cinzel'; font-size: 0.7rem; opacity: 0.3; }
 
-        .sub-lux {
-            font-size: 0.6rem;
-            letter-spacing: 3.5px;
-            color: #CBB26A;
-            font-family: 'Orbitron';
-            margin-top: 8px;
+        /* --- FEEDBACK & HUD --- */
+        .hud-display { position: absolute; top: 160px; right: 40px; text-align: right; }
+        .hud-num { font-size: 3rem; font-weight: 900; color: rgba(255,255,255,0.03); position: absolute; top: -40px; right: 0; }
+        .hud-label { font-size: 0.6rem; letter-spacing: 3px; color: var(--gold-solid); }
+
+        /* --- FOOTER CREDITS --- */
+        .footer-credits {
+            position: absolute; bottom: 80px; width: 100%; text-align: center;
+            font-size: 0.55rem; letter-spacing: 3px; color: #444; font-weight: 300;
             text-transform: uppercase;
-            font-weight: 400;
         }
 
-        .stats-glass {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 22px;
-            background: rgba(0, 0, 0, 0.55);
-            border-radius: 120px;
-            padding: 10px 28px;
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(212,175,55,0.5);
-            transform: translateZ(8px);
-        }
-
-        .stat-cell-lux {
-            text-align: center;
-            font-family: 'Orbitron';
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #CCDDFF;
-        }
-
-        .stat-value-lux {
-            font-size: 1.4rem;
-            font-weight: 900;
-            background: linear-gradient(135deg, #FFF8E7, #F3D382);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 6px rgba(212,175,55,0.6);
-        }
-
-        /* TRACK – luxuriöse Rennbahn mit Tiefe */
-        .track-lux {
-            background: rgba(0, 0, 0, 0.55);
-            margin: 14px 22px;
-            border-radius: 56px;
-            padding: 18px 14px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.7), 0 15px 30px -10px black;
-            border: 1px solid rgba(212, 175, 55, 0.5);
-            transform: translateZ(6px);
-        }
-
-        .lane-card {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 20px;
-            background: rgba(0, 0, 0, 0.55);
-            border-radius: 90px;
-            padding: 8px 20px;
-            transition: all 0.2s ease;
-            border: 1px solid rgba(255,215,0,0.2);
-        }
-
-        .lane-card:hover {
-            transform: translateZ(10px) scale(1.01);
-            border-color: #F3D382;
-        }
-
-        .driver-name-lux {
-            width: 105px;
-            font-family: 'Orbitron';
-            font-size: 0.75rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #F5E6C4, #CFB173);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .progress-glass {
-            flex: 1;
-            height: 52px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 100px;
-            overflow: hidden;
-            box-shadow: inset 0 2px 6px #000, 0 1px 0 rgba(255,255,255,0.1);
-        }
-
-        .progress-fill-lux {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #D4AF37, #FFB347, #FF69B4);
-            border-radius: 100px;
-            transition: width 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 20px;
-            font-weight: bold;
-            font-size: 0.75rem;
-            color: #000;
-            font-family: monospace;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .car-icon-lux {
-            font-size: 2rem;
-            filter: drop-shadow(0 0 12px rgba(212,175,55,0.7));
-            width: 58px;
-            text-align: center;
-            animation: gentleHover 2s infinite alternate;
-        }
-
-        @keyframes gentleHover {
-            0% { transform: translateY(0px); }
-            100% { transform: translateY(-6px); }
-        }
-
-        /* ITEM SLOT – wie ein Juwel */
-        .item-lux {
-            display: flex;
-            justify-content: center;
-            margin: 4px 20px 8px;
-        }
-
-        .item-gem {
-            background: rgba(0, 0, 0, 0.75);
-            border-radius: 90px;
-            padding: 12px 40px;
-            display: inline-flex;
-            align-items: center;
-            gap: 22px;
-            border: 1px solid #F3D382;
-            backdrop-filter: blur(20px);
-            cursor: pointer;
-            transition: 0.25s;
-            box-shadow: 0 0 20px rgba(212,175,55,0.5);
-            transform: translateZ(18px);
-        }
-
-        .item-gem:active {
-            transform: scale(0.94) translateZ(5px);
-            box-shadow: 0 0 35px #FFD966;
-        }
-
-        /* QUIZ CARD – schwebende Glasscheibe */
-        .quiz-card {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(32px);
-            border-radius: 60px;
-            margin: 8px 22px 22px;
-            padding: 28px 24px;
-            border: 1px solid rgba(212, 175, 55, 0.7);
-            box-shadow: 0 30px 45px -18px rgba(0,0,0,0.7);
-            transform: translateZ(10px);
-        }
-
-        .timer-ring-lux {
-            width: 100%;
-            height: 8px;
-            background: #1E1F2C;
-            border-radius: 12px;
-            margin-bottom: 28px;
-            overflow: hidden;
-        }
-
-        .timer-fill-lux {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #D4AF37, #FF8C42, #FF4D6D);
-            transition: width 0.05s linear;
-        }
-
-        .question-text-lux {
-            font-weight: 800;
-            font-size: 1.3rem;
-            text-align: center;
-            margin-bottom: 32px;
-            color: #FCF3E0;
-            text-shadow: 0 0 10px rgba(212,175,55,0.5);
-            font-family: 'Cormorant Garamond', serif;
-            letter-spacing: -0.2px;
-        }
-
-        .option-lux {
-            background: rgba(20, 22, 35, 0.95);
-            padding: 16px 20px;
-            border-radius: 100px;
-            text-align: center;
-            font-weight: 600;
-            border: 1px solid rgba(255, 215, 0, 0.4);
-            transition: all 0.2s;
-            cursor: pointer;
-            margin-bottom: 14px;
-            backdrop-filter: blur(6px);
-            font-size: 0.95rem;
-            color: #EEDDCC;
-        }
-
-        .option-lux:active {
-            transform: scale(0.96);
-            background: #2F2E45;
-            border-color: #F3D382;
-            box-shadow: 0 0 18px #FFD966;
-        }
-
-        .feedback-lux {
-            text-align: center;
-            background: rgba(0, 0, 0, 0.85);
-            border-radius: 56px;
-            padding: 28px;
-            border: 1px solid #F3D382;
-        }
-
-        .btn-elite-lux {
-            background: linear-gradient(95deg, #B8860B, #D4AF37, #F0C45A);
-            border: none;
-            padding: 18px;
-            border-radius: 100px;
-            font-family: 'Orbitron';
-            font-weight: 900;
-            font-size: 1rem;
-            color: #121212;
-            width: 100%;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 12px 25px rgba(212,175,55,0.4);
-            letter-spacing: 1.5px;
-        }
-
-        .btn-elite-lux:active {
-            transform: scale(0.96);
-            box-shadow: 0 4px 12px gold;
-        }
-
-        .podium-card {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(28px);
-            margin: 20px;
-            border-radius: 68px;
-            padding: 28px;
-            text-align: center;
-            border: 1px solid gold;
-            transform: translateZ(15px);
-        }
-
-        .podium-item-lux {
-            background: rgba(0, 0, 0, 0.7);
-            margin-bottom: 18px;
-            padding: 18px;
-            border-radius: 56px;
-            display: flex;
-            justify-content: space-between;
-            border-left: 10px solid #D4AF37;
-            font-weight: bold;
-            color: #F9EEDD;
-        }
-
-        /* BOTTOM NAV – elegant & gold */
-        .bottom-nav {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(28px);
-            border-top: 1px solid rgba(212,175,55,0.6);
-            display: flex;
-            justify-content: space-evenly;
-            padding: 12px 20px;
-            margin-top: auto;
-            border-radius: 0 0 72px 72px;
-        }
-
-        .nav-btn {
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid rgba(212,175,55,0.6);
-            padding: 12px 28px;
-            border-radius: 70px;
-            font-family: 'Orbitron';
-            font-weight: bold;
-            font-size: 0.85rem;
-            color: #F3D382;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            backdrop-filter: blur(6px);
-            transition: 0.2s;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-
-        .nav-btn:active {
-            transform: scale(0.94);
-            background: #D4AF37;
-            color: #000;
-        }
-
-        .nav-btn-home {
-            background: linear-gradient(135deg, #B8860B, #F0C45A);
-            color: #0A0A0A;
-            border: none;
-        }
-
-        .producer-footer {
-            text-align: center;
-            font-size: 0.6rem;
-            font-family: 'Inter', monospace;
-            letter-spacing: 1.2px;
-            color: #CBB26A;
-            background: rgba(0,0,0,0.4);
-            padding: 8px 0;
-            backdrop-filter: blur(6px);
-            border-top: 1px solid rgba(212,175,55,0.3);
-        }
-
-        .screen {
-            display: none;
-            flex: 1;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        .active-screen {
-            display: flex;
-        }
     </style>
 </head>
 <body>
-<div class="game-shell" id="gameApp">
-    <div class="hud-lux">
-        <div class="brand-lux">AMIAR KEMPF</div>
-        <div class="sub-lux">ELITE VELOCITY · ÉDITION LUXE</div>
-        <div class="stats-glass">
-            <div class="stat-cell-lux">🏁 DISTANZ<span class="stat-value-lux" id="playerDistLabel">0</span></div>
-            <div class="stat-cell-lux">⚡ DREHZAHL<span class="stat-value-lux" id="rpmLive">0</span></div>
-            <div class="stat-cell-lux">🎁 ITEM<span class="stat-value-lux" id="itemIndicator">—</span></div>
+
+<div class="aura-bg"></div>
+
+<div class="app-frame">
+    <header class="header">
+        <div class="brand-name">AMIAR</div>
+        <div class="brand-name" style="margin-top: -10px;">KEMPF</div>
+        <div class="edition-tag">Aura Velocity • V4.0</div>
+    </header>
+
+    <div class="hud-display">
+        <div class="hud-num" id="bg-score">0000</div>
+        <div class="hud-label" id="cur-speed">0 KM/H</div>
+    </div>
+
+    <div id="screen-home" class="screen active">
+        <div class="luxury-card">
+            <h2 style="font-weight: 100; letter-spacing: 2px; margin-bottom: 15px;">Willkommen im <br><b style="font-weight: 600;">Elite-Cockpit</b></h2>
+            <p style="font-size: 0.85rem; opacity: 0.4; line-height: 1.8;">Das System wurde für Amiar & Wowa optimiert. Starten Sie die Engine für die finale Performance.</p>
+        </div>
+        <button class="btn-aura" onclick="startGame()">Engine starten</button>
+    </div>
+
+    <div id="screen-race" class="screen">
+        <div id="quiz-flow">
+            <h2 class="q-text" id="q-text">Lade Algorithmen...</h2>
+            <div id="options-list"></div>
+        </div>
+        
+        <div id="feedback" style="display:none; text-align: left;">
+            <h1 id="fb-title" style="font-family: Cinzel; font-size: 2.5rem; margin-bottom: 10px;"></h1>
+            <p id="fb-fact" style="font-size: 0.9rem; opacity: 0.4; margin-bottom: 50px;"></p>
+            <button class="btn-aura" style="width: 100%;" onclick="nextQuestion()">Nächster Sektor</button>
         </div>
     </div>
 
-    <!-- STARTBILDSCHIRM -->
-    <div id="homeScreen" class="screen active-screen">
-        <div style="flex:1; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 24px;">
-            <div style="font-size: 5.8rem; filter: drop-shadow(0 0 28px rgba(212,175,55,0.9)); animation: gentleHover 1.8s infinite;">🏎️✨</div>
-            <div style="font-family: 'Orbitron'; font-size: 1.9rem; background: linear-gradient(135deg,#FFF2E0,#D4AF37,#F5C542); -webkit-background-clip:text; background-clip:text; color:transparent; font-weight: 900;">MARIO CARD MODUS</div>
-            <div style="font-size: 0.7rem; background: #00000099; padding: 10px 32px; border-radius: 100px; backdrop-filter: blur(10px); color: #FFE6B3;">⚡ QUIZ · ITEMS · GEGNER-KI ⚡</div>
-        </div>
-        <div style="padding: 24px;">
-            <button class="btn-elite-lux" id="ignitionBtn">🔥 ZÜNDUNG · RENNEN STARTEN 🔥</button>
-        </div>
+    <div id="screen-leader" class="screen">
+        <h2 style="font-family: Cinzel; font-size: 1.5rem; margin-bottom: 40px; letter-spacing: 5px; text-align: center;">HALL OF FAME</h2>
+        <div id="ranking"></div>
+        <button class="btn-aura" style="margin-top: 40px;" onclick="location.reload()">System Reset</button>
     </div>
 
-    <!-- RENNBILDSCHIRM -->
-    <div id="raceScreen" class="screen">
-        <div class="track-lux">
-            <div class="lane-card">
-                <div class="car-icon-lux">🏎️</div>
-                <div class="driver-name-lux">🏆 AMIAR</div>
-                <div class="progress-glass"><div class="progress-fill-lux" id="playerProgressFill">0%</div></div>
-            </div>
-            <div class="lane-card">
-                <div class="car-icon-lux">🚗⚡</div>
-                <div class="driver-name-lux">⚡ ELITE GEGNER</div>
-                <div class="progress-glass"><div class="progress-fill-lux" id="aiProgressFill">0%</div></div>
-            </div>
-        </div>
+    <div class="footer-credits">Produziert von Wowa & Amiar Kempf</div>
 
-        <div class="item-lux" id="itemSlotArea">
-            <div class="item-gem" id="useItemBtn">
-                <span id="itemEmoji" style="font-size: 2rem;">❓</span>
-                <span id="itemNameText" style="font-family: 'Orbitron'; font-weight: bold; color: #F3D382;">LEER</span>
-            </div>
-        </div>
-
-        <div class="quiz-card" id="quizContainer">
-            <div class="timer-ring-lux"><div class="timer-fill-lux" id="quizTimerFill" style="width: 100%"></div></div>
-            <div id="questionArea">
-                <div class="question-text-lux" id="questionTxt">Tippe auf die Antwort, um zu beschleunigen</div>
-                <div id="optionsGrid" class="option-grid"></div>
-            </div>
-            <div id="feedbackArea" style="display: none;">
-                <div class="feedback-lux">
-                    <div id="feedbackMessage" style="font-weight: bold; font-size: 1.2rem;"></div>
-                    <div id="funFact" style="font-size: 0.7rem; margin-top: 12px; opacity:0.9;"></div>
-                    <button class="btn-elite-lux" id="nextQuestionBtn" style="margin-top: 18px;">➡️ NÄCHSTE FRAGE</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SIEGERPODIUM -->
-    <div id="podiumScreen" class="screen">
-        <div class="podium-card">
-            <div style="font-family: 'Orbitron'; font-size: 1.8rem; color: #F3D382; text-shadow: 0 0 8px gold;">🏁 RENNEN BEENDET 🏁</div>
-            <div id="podiumList" style="margin: 30px 0;"></div>
-        </div>
-    </div>
-
-    <div class="bottom-nav">
-        <button class="nav-btn nav-btn-home" id="homeNavBtn">🏠 START</button>
-        <button class="nav-btn" id="restartNavBtn">⟳ NEUSTART</button>
-    </div>
-    <div class="producer-footer">
-        Produziert von Wowa & Amiar Kempf
-    </div>
+    <nav class="nav-minimal">
+        <div class="nav-dot active" id="dot-home" onclick="nav('home')"></div>
+        <div class="nav-dot" id="dot-race"></div>
+        <div class="nav-dot" id="dot-leader" onclick="nav('leader')"></div>
+    </nav>
 </div>
 
 <script>
-    (function(){
-        // ----- DEUTSCHE FRAGEN (LUXUS-WISSEN) -----
-        const QUESTION_SET = [
-            { q: "Welcher Hypercar hält den 0-400-0 Rekord in 29 Sekunden?", o: ["Koenigsegg Regera", "Rimac Nevera", "Bugatti Bolide", "Tesla Roadster"], c: 1, fact: "Rimac Nevera – 1914 PS, elektrischer Overkill!" },
-            { q: "Was bedeutet 'DRS' im Rennsport?", o: ["Drag Reduction System", "Dynamic Racing Shift", "Direktantrieb System", "Drift Stabilizer"], c: 0, fact: "DRS öffnet den Heckflügel für mehr Topspeed." },
-            { q: "Welches Logo gehört zu Ferrari?", o: ["Lamborghini Stier", "Porsche Wappen", "Cavallino Rampante", "Maserati Trident"], c: 2, fact: "Das steigende Pferd – pure Leidenschaft." },
-            { q: "24 Stunden Rennen – welche Legende?", o: ["Monaco GP", "Le Mans", "Indy 500", "Nürburgring 24h"], c: 1, fact: "Le Mans – die ultimative Langstrecke." },
-            { q: "V12 Motor: wie viele Zylinder?", o: ["6 Zylinder", "8 Zylinder", "12 Zylinder", "16 Zylinder"], c: 2, fact: "V12 – Sound und Power pur." }
-        ];
+    const DB = [
+        { q: "Was ist das Geheimnis wahrer Elite-Performance?", o: ["Viel Hubraum", "Perfekte Aerodynamik", "Der Wille zum Sieg", "Präzise Technik"], c: 2, e: "Die richtige Einstellung entscheidet über das Ziel." },
+        { q: "Welche Stadt verkörpert Amiar's Speed?", o: ["Mailand", "Dubai", "Monaco", "Singapur"], c: 1, e: "Dubai steht für grenzenlosen Luxus und Tempo." },
+        { q: "Was definiert die Aura Edition?", o: ["Schönheit", "Exzellenz", "Innovation", "Alles zusammen"], c: 3, e: "Ein Erlebnis ohne Kompromisse." }
+    ];
 
-        const ITEMS_LIB = [
-            { id: "NITRO", name: "NITRO BOOST", emoji: "🚀", effect: "boost", boostValue: 85 },
-            { id: "SHIELD", name: "ENERGIESCHILD", emoji: "🛡️", effect: "shield" },
-            { id: "OIL", name: "ÖLPFÜTZE", emoji: "🛢️", effect: "trap" }
-        ];
+    let state = { score: 0, curQ: 0 };
 
-        let gameActive = false;
-        let playerScore = 0, aiScore = 0;
-        const WIN_SCORE = 1250;
-        let currentItem = null;
-        let shieldActive = false;
+    function nav(s) {
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-dot').forEach(d => d.classList.remove('active'));
+        document.getElementById('screen-' + s).classList.add('active');
+        document.getElementById('dot-' + s).classList.add('active');
+    }
 
-        let currentQuestionObj = null;
-        let answering = false;
-        let quizTimerInterval = null;
-        let timeLeft = 9.0;
-        let waitingFeedback = false;
-        let aiInterval = null;
+    function startGame() {
+        state.score = 0;
+        state.curQ = 0;
+        nav('race');
+        loadQuestion();
+    }
 
-        let audioCtx = null, osc = null, gain = null;
+    function loadQuestion() {
+        if(state.curQ >= DB.length) { showFinal(); return; }
+        const q = DB[state.curQ];
+        document.getElementById('quiz-flow').style.display = 'block';
+        document.getElementById('feedback').style.display = 'none';
+        document.getElementById('q-text').innerText = q.q;
+        
+        const list = document.getElementById('options-list');
+        list.innerHTML = '';
+        q.o.forEach((o, i) => {
+            const row = document.createElement('div');
+            row.className = 'opt-row';
+            row.innerHTML = `${o} <span>SEKTOR ${i+1}</span>`;
+            row.onclick = () => checkAnswer(i, q.c, q.e);
+            list.appendChild(row);
+        });
+    }
 
-        // DOM
-        const homeScreen = document.getElementById('homeScreen');
-        const raceScreen = document.getElementById('raceScreen');
-        const podiumScreen = document.getElementById('podiumScreen');
-        const playerFill = document.getElementById('playerProgressFill');
-        const aiFill = document.getElementById('aiProgressFill');
-        const playerDistLabel = document.getElementById('playerDistLabel');
-        const rpmLive = document.getElementById('rpmLive');
-        const itemIndicatorSpan = document.getElementById('itemIndicator');
-        const itemEmojiSpan = document.getElementById('itemEmoji');
-        const itemNameSpan = document.getElementById('itemNameText');
-        const useItemBtn = document.getElementById('useItemBtn');
-        const questionTxt = document.getElementById('questionTxt');
-        const optionsGrid = document.getElementById('optionsGrid');
-        const quizTimerFill = document.getElementById('quizTimerFill');
-        const questionAreaDiv = document.getElementById('questionArea');
-        const feedbackAreaDiv = document.getElementById('feedbackArea');
-        const feedbackMessageDiv = document.getElementById('feedbackMessage');
-        const funFactDiv = document.getElementById('funFact');
-        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+    function checkAnswer(idx, correct, fact) {
+        document.getElementById('quiz-flow').style.display = 'none';
+        document.getElementById('feedback').style.display = 'block';
+        const title = document.getElementById('fb-title');
+        document.getElementById('fb-fact').innerText = fact;
 
-        function showFloatingMsg(msg, color) {
-            let notif = document.createElement('div');
-            notif.innerText = msg;
-            notif.style.position = 'absolute';
-            notif.style.bottom = '28%';
-            notif.style.left = '12%';
-            notif.style.background = '#000000dd';
-            notif.style.padding = '12px 26px';
-            notif.style.borderRadius = '70px';
-            notif.style.fontWeight = 'bold';
-            notif.style.color = color;
-            notif.style.backdropFilter = 'blur(20px)';
-            notif.style.zIndex = '999';
-            notif.style.fontFamily = 'Orbitron';
-            notif.style.fontSize = '0.8rem';
-            notif.style.border = `1px solid ${color}`;
-            document.querySelector('.game-shell').appendChild(notif);
-            setTimeout(() => notif.remove(), 1600);
+        if(idx === correct) {
+            title.innerText = "EXZELLENT";
+            title.style.color = "#d4af37";
+            state.score += 750;
+        } else {
+            title.innerText = "REDUZIERT";
+            title.style.color = "#444";
         }
+        document.getElementById('cur-speed').innerText = state.score + " KM/H";
+        document.getElementById('bg-score').innerText = state.score.toString().padStart(4, '0');
+    }
 
-        function updateProgressUI() {
-            let playerPercent = Math.min(100, (playerScore / WIN_SCORE) * 100);
-            let aiPercent = Math.min(100, (aiScore / WIN_SCORE) * 100);
-            playerFill.style.width = playerPercent + "%";
-            playerFill.innerText = Math.floor(playerPercent) + "%";
-            aiFill.style.width = aiPercent + "%";
-            aiFill.innerText = Math.floor(aiPercent) + "%";
-            playerDistLabel.innerText = Math.floor(playerScore);
-            let rpm = 800 + (playerScore / WIN_SCORE) * 7000;
-            rpmLive.innerText = Math.floor(rpm);
-            if (osc && gain && gameActive) {
-                let pitch = 45 + (playerScore / WIN_SCORE) * 45;
-                osc.frequency.setTargetAtTime(pitch, audioCtx.currentTime, 0.05);
-                gain.gain.value = 0.07 + (playerScore / WIN_SCORE) * 0.12;
-            }
-        }
+    function nextQuestion() {
+        state.curQ++;
+        loadQuestion();
+    }
 
-        function refreshItemUI() {
-            if (currentItem) {
-                itemEmojiSpan.innerText = currentItem.emoji;
-                itemNameSpan.innerText = currentItem.name;
-                itemIndicatorSpan.innerText = currentItem.emoji;
-                useItemBtn.style.opacity = "1";
-            } else {
-                itemEmojiSpan.innerText = "❓";
-                itemNameSpan.innerText = "LEER";
-                itemIndicatorSpan.innerText = "—";
-                useItemBtn.style.opacity = "0.6";
-            }
-        }
-
-        function grantRandomItem() {
-            if (!gameActive) return;
-            if (currentItem === null) {
-                let rand = Math.floor(Math.random() * ITEMS_LIB.length);
-                currentItem = { ...ITEMS_LIB[rand] };
-                refreshItemUI();
-                showFloatingMsg(`📦 ITEM ERHALTEN: ${currentItem.name}`, "#FFD966");
-            }
-        }
-
-        function applyCorrectBoost(answerTimeLeft) {
-            let boost = Math.floor(35 + (answerTimeLeft * 5));
-            boost = Math.min(95, boost);
-            playerScore = Math.min(WIN_SCORE, playerScore + boost);
-            updateProgressUI();
-            showFloatingMsg(`✅ RICHTIG! +${boost} KM/H`, "#A5D6A5");
-            if (Math.random() < 0.65) grantRandomItem();
-        }
-
-        function applyWrongPenalty() {
-            let penalty = 40;
-            playerScore = Math.max(0, playerScore - penalty);
-            updateProgressUI();
-            showFloatingMsg(`❌ FALSCH! -${penalty} KM/H`, "#FFA07A");
-        }
-
-        function activateItem() {
-            if (!gameActive || waitingFeedback || answering) return;
-            if (!currentItem) return;
-            let item = currentItem;
-            if (item.effect === "boost") {
-                playerScore = Math.min(WIN_SCORE, playerScore + item.boostValue);
-                updateProgressUI();
-                showFloatingMsg(`🚀 NITRO +${item.boostValue}`, "#7DF9FF");
-                currentItem = null;
-                refreshItemUI();
-            } else if (item.effect === "shield") {
-                shieldActive = true;
-                showFloatingMsg(`🛡️ SCHILD AKTIVIERT (schützt vor Öl)`, "#F3D382");
-                currentItem = null;
-                refreshItemUI();
-                setTimeout(() => { shieldActive = false; showFloatingMsg(`🛡️ Schutz abgelaufen`, "#aaa"); }, 8000);
-            } else if (item.effect === "trap") {
-                if (aiScore > 20) {
-                    let penalty = 45;
-                    aiScore = Math.max(0, aiScore - penalty);
-                    updateProgressUI();
-                    showFloatingMsg(`🛢️ ÖLPFÜTZE! Gegner -${penalty}`, "#FFAE42");
-                } else showFloatingMsg(`Öl wirkungslos`, "#aaa");
-                currentItem = null;
-                refreshItemUI();
-            }
-            checkWin();
-        }
-
-        function handleAnswer(selectedIdx) {
-            if (!gameActive || !answering) return;
-            clearInterval(quizTimerInterval);
-            answering = false;
-            let isCorrect = (selectedIdx === currentQuestionObj.c);
-            if (isCorrect) applyCorrectBoost(timeLeft);
-            else applyWrongPenalty();
-            feedbackMessageDiv.innerText = isCorrect ? "✨ PERFEKTER DRIFT! + BOOST ✨" : "💥 MOTOR STUTTER! ZEIT ODER FALSCH 💥";
-            funFactDiv.innerText = currentQuestionObj.fact + (isCorrect ? "" : " (richtig: " + currentQuestionObj.o[currentQuestionObj.c] + ")");
-            questionAreaDiv.style.display = "none";
-            feedbackAreaDiv.style.display = "block";
-            waitingFeedback = true;
-            checkWin();
-        }
-
-        function loadNewQuestion() {
-            if (!gameActive) return;
-            if (waitingFeedback) return;
-            answering = true;
-            waitingFeedback = false;
-            questionAreaDiv.style.display = "block";
-            feedbackAreaDiv.style.display = "none";
-            const randomIndex = Math.floor(Math.random() * QUESTION_SET.length);
-            currentQuestionObj = { ...QUESTION_SET[randomIndex] };
-            questionTxt.innerText = currentQuestionObj.q;
-            optionsGrid.innerHTML = "";
-            currentQuestionObj.o.forEach((opt, idx) => {
-                let btn = document.createElement('div');
-                btn.className = "option-lux";
-                btn.innerText = opt;
-                btn.onclick = () => handleAnswer(idx);
-                optionsGrid.appendChild(btn);
-            });
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            timeLeft = 9.0;
-            quizTimerFill.style.width = "100%";
-            quizTimerInterval = setInterval(() => {
-                if (!gameActive || !answering) return;
-                timeLeft -= 0.1;
-                let percent = Math.max(0, (timeLeft / 9.0) * 100);
-                quizTimerFill.style.width = percent + "%";
-                if (timeLeft <= 0) {
-                    clearInterval(quizTimerInterval);
-                    if (answering) handleAnswer(-1);
-                }
-            }, 100);
-        }
-
-        function nextQuizStep() {
-            if (!gameActive) return;
-            if (!waitingFeedback) return;
-            waitingFeedback = false;
-            if (playerScore >= WIN_SCORE || aiScore >= WIN_SCORE) { endRace(); return; }
-            loadNewQuestion();
-        }
-
-        function aiAdvance() {
-            if (!gameActive) return;
-            if (aiScore >= WIN_SCORE) return;
-            let increment = 18 + Math.floor(Math.random() * 34);
-            aiScore = Math.min(WIN_SCORE, aiScore + increment);
-            updateProgressUI();
-            if (Math.random() < 0.28 && gameActive && !shieldActive && playerScore > 30) {
-                let oilPenalty = 38;
-                playerScore = Math.max(0, playerScore - oilPenalty);
-                updateProgressUI();
-                showFloatingMsg(`⚠️ GEGNER WIRFT ÖL! -${oilPenalty}`, "#FFA07A");
-            } else if (Math.random() < 0.28 && shieldActive) showFloatingMsg(`🛡️ SCHILD BLOCKT GEGNER-ÖL!`, "#A5D6A5");
-            checkWin();
-        }
-
-        function checkWin() {
-            if (playerScore >= WIN_SCORE) endRace("player");
-            else if (aiScore >= WIN_SCORE) endRace("ai");
-        }
-
-        function endRace() {
-            if (!gameActive) return;
-            gameActive = false;
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            if (aiInterval) clearInterval(aiInterval);
-            if (osc && gain) gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.2);
-            homeScreen.classList.remove('active-screen');
-            raceScreen.classList.remove('active-screen');
-            podiumScreen.classList.add('active-screen');
-            const podiumDiv = document.getElementById('podiumList');
-            let winnerName = (playerScore >= WIN_SCORE) ? "🏆 AMIAR KEMPF" : "⚡ ELITE GEGNER";
-            podiumDiv.innerHTML = `
-                <div class="podium-item-lux" style="border-left-color: #F3D382;">🥇 SIEGER: ${winnerName}<span>${Math.floor(Math.max(playerScore, aiScore))} Pkte</span></div>
-                <div class="podium-item-lux">🥈 AMIAR: ${Math.floor(playerScore)} Pkte</div>
-                <div class="podium-item-lux">🥉 GEGNER: ${Math.floor(aiScore)} Pkte</div>
-            `;
-        }
-
-        function fullResetAndGoHome() {
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            if (aiInterval) clearInterval(aiInterval);
-            gameActive = false;
-            if (osc && gain) gain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.1);
-            playerScore = 0; aiScore = 0;
-            currentItem = null; shieldActive = false;
-            answering = false; waitingFeedback = false;
-            refreshItemUI();
-            updateProgressUI();
-            podiumScreen.classList.remove('active-screen');
-            raceScreen.classList.remove('active-screen');
-            homeScreen.classList.add('active-screen');
-        }
-
-        function restartRaceFromScratch() {
-            if (quizTimerInterval) clearInterval(quizTimerInterval);
-            if (aiInterval) clearInterval(aiInterval);
-            playerScore = 0; aiScore = 0;
-            currentItem = null; shieldActive = false;
-            answering = false; waitingFeedback = false;
-            gameActive = true;
-            updateProgressUI();
-            refreshItemUI();
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                osc = audioCtx.createOscillator();
-                gain = audioCtx.createGain();
-                osc.type = "sawtooth";
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                gain.gain.value = 0.0;
-            } else gain.gain.setTargetAtTime(0.09, audioCtx.currentTime, 0.1);
-            homeScreen.classList.remove('active-screen');
-            podiumScreen.classList.remove('active-screen');
-            raceScreen.classList.add('active-screen');
-            loadNewQuestion();
-            if (aiInterval) clearInterval(aiInterval);
-            aiInterval = setInterval(() => { if(gameActive) aiAdvance(); }, 1850);
-        }
-
-        document.getElementById('ignitionBtn').onclick = () => { restartRaceFromScratch(); };
-        nextQuestionBtn.onclick = () => { nextQuizStep(); };
-        useItemBtn.onclick = () => { activateItem(); };
-        document.getElementById('homeNavBtn').onclick = () => { fullResetAndGoHome(); };
-        document.getElementById('restartNavBtn').onclick = () => { restartRaceFromScratch(); };
-
-        refreshItemUI();
-        updateProgressUI();
-    })();
+    function showFinal() {
+        nav('leader');
+        document.getElementById('ranking').innerHTML = `
+            <div class="luxury-card" style="text-align: center;">
+                <h4 style="font-weight: 300; opacity: 0.5; margin-bottom: 10px;">FINALE GESCHWINDIGKEIT</h4>
+                <h1 style="font-family: Cinzel; font-size: 3.5rem; color: #d4af37;">${state.score}</h1>
+                <p style="letter-spacing: 5px; opacity: 0.3; margin-top: 10px;">KM/H</p>
+            </div>
+        `;
+    }
 </script>
+
 </body>
 </html>
