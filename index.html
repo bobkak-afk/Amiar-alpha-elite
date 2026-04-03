@@ -2,44 +2,58 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>SCUDERIA INFINITY | PRO EDITION</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>SCUDERIA INFINITY</title>
+    
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        #ui { position: absolute; top: 20px; left: 20px; color: #d4af37; z-index: 10; pointer-events: none; }
-        .stats { font-size: 2rem; font-weight: bold; text-shadow: 0 0 10px rgba(212,175,55,0.5); }
-        #controls-hint { position: absolute; bottom: 20px; width: 100%; text-align: center; color: rgba(255,255,255,0.3); font-size: 0.8rem; letter-spacing: 2px; }
+        body { 
+            margin: 0; background: #000; overflow: hidden; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none; -webkit-user-select: none;
+        }
+        
+        /* HUD Design */
+        #ui {
+            position: absolute; top: env(safe-area-inset-top, 20px); 
+            left: 20px; z-index: 10; pointer-events: none;
+        }
+        .speed { font-size: 2.5rem; font-weight: 900; color: #d4af37; }
+
+        /* Touch-Zonen (Unsichtbare Steuerung) */
+        #touch-left { position: absolute; left: 0; top: 0; width: 30%; height: 100%; z-index: 20; }
+        #touch-right { position: absolute; right: 30%; top: 0; width: 40%; height: 100%; z-index: 20; }
+        #touch-gas { position: absolute; right: 0; top: 0; width: 30%; height: 100%; z-index: 20; background: rgba(212,175,55,0.05); }
+
+        #label { color: rgba(255,255,255,0.5); font-size: 0.7rem; letter-spacing: 2px; }
     </style>
 </head>
 <body>
-    <div id="ui">
-        <div style="font-size: 0.7rem; letter-spacing: 3px;">VELOCITY UNITS</div>
-        <div id="speed" class="stats">000</div>
-    </div>
-    <div id="controls-hint">WASD TO DRIVE | SHIFT TO DRIFT</div>
 
-    <script type="module">
+    <div id="ui">
+        <div id="label">SCUDERIA INFINITY</div>
+        <div id="speedDisplay" class="speed">000</div>
+    </div>
+
+    <div id="touch-left"></div> <div id="touch-right"></div> <div id="touch-gas"></div> <script type="module">
         import * as THREE from 'https://unpkg.com/three@0.150.0/build/three.module.js';
 
-        // 1. SETUP & LUXUS-BELEUCHTUNG
         const scene = new THREE.Scene();
-        scene.fog = new THREE.Fog(0x000000, 10, 50);
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setPixelRatio(window.devicePixelRatio); // Scharfes Bild auf iPhone
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Goldene Lichter
+        // Licht & Welt
         const sun = new THREE.DirectionalLight(0xd4af37, 1.5);
         sun.position.set(5, 10, 7);
         scene.add(sun);
         scene.add(new THREE.AmbientLight(0x404040));
+        scene.add(new THREE.GridHelper(200, 50, 0x333333, 0x111111));
 
-        // 2. DIE WELT (Schwarzer Asphalt & Goldgitter)
-        const grid = new THREE.GridHelper(200, 50, 0xff0000, 0x222222);
-        scene.add(grid);
-
-        // 3. DAS AUTO (Amiar Kempf Special Edition)
+        // Das Auto
         const car = new THREE.Group();
         const body = new THREE.Mesh(
             new THREE.BoxGeometry(1, 0.4, 2),
@@ -49,42 +63,52 @@
         car.add(body);
         scene.add(car);
 
-        // 4. PHYSIK-VARIABLEN
-        let speed = 0, rotation = 0, steer = 0;
-        const keys = {};
-        window.onkeydown = (e) => keys[e.code] = true;
-        window.onkeyup = (e) => keys[e.code] = false;
+        // Steuerungsvariablen
+        let speed = 0, rotation = 0;
+        let input = { left: false, right: false, gas: false };
 
-        // 5. GAME LOOP (Das Herzstück)
+        // Touch Events für iPhone
+        const setupTouch = (id, key) => {
+            const el = document.getElementById(id);
+            el.addEventListener('touchstart', (e) => { e.preventDefault(); input[key] = true; });
+            el.addEventListener('touchend', () => input[key] = false);
+        };
+
+        setupTouch('touch-left', 'left');
+        setupTouch('touch-right', 'right');
+        setupTouch('touch-gas', 'gas');
+
         function update() {
-            // Beschleunigung
-            if (keys['KeyW']) speed = THREE.MathUtils.lerp(speed, 0.6, 0.05);
-            else speed = THREE.MathUtils.lerp(speed, 0, 0.02);
+            // iPhone Physik: Sanfteres Beschleunigen
+            if (input.gas) speed = THREE.MathUtils.lerp(speed, 0.7, 0.05);
+            else speed = THREE.MathUtils.lerp(speed, 0, 0.03);
 
-            // Lenkung & Drift-Gefühl
-            const driftMult = keys['ShiftLeft'] ? 2.5 : 1.0;
-            if (keys['KeyA']) rotation += 0.04 * driftMult * (speed * 2);
-            if (keys['KeyD']) rotation -= 0.04 * driftMult * (speed * 2);
+            let steerPower = input.gas ? 0.06 : 0.03; // Driften wenn Gas gegeben wird
+            if (input.left) rotation += steerPower;
+            if (input.right) rotation -= steerPower;
 
-            // Bewegung anwenden
             car.position.x += Math.sin(rotation) * speed;
             car.position.z += Math.cos(rotation) * speed;
             car.rotation.y = rotation;
 
-            // Dynamische Kamera (FOV ändert sich bei Speed)
-            camera.fov = 60 + (speed * 40);
-            camera.updateProjectionMatrix();
-            
-            const camOffset = new THREE.Vector3(-Math.sin(rotation) * 5, 2.5, -Math.cos(rotation) * 5);
+            // Kamera-Follow
+            const camOffset = new THREE.Vector3(-Math.sin(rotation) * 6, 3, -Math.cos(rotation) * 6);
             camera.position.lerp(car.position.clone().add(camOffset), 0.1);
             camera.lookAt(car.position);
 
-            document.getElementById('speed').innerText = Math.floor(speed * 400).toString().padStart(3, '0');
-            
+            document.getElementById('speedDisplay').innerText = Math.floor(speed * 400).toString().padStart(3, '0');
+
             renderer.render(scene, camera);
             requestAnimationFrame(update);
         }
         update();
+
+        // Resize bei Orientierungswechsel (Portrait/Landscape)
+        window.onresize = () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        };
     </script>
 </body>
 </html>
