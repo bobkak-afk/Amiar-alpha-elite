@@ -4,241 +4,220 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>AMIAR KEMPF | INFINITY OBSIDIAN</title>
+    <title>AMIAR KEMPF | SCUDERIA VELOCITY</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;900&family=Montserrat:wght@100;300;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&family=Barlow+Condensed:ital,wght@1,700;1,900&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --obsidian: #050505;
-            --gold: linear-gradient(135deg, #c5a059 0%, #f3d091 50%, #8a6d3b 100%);
-            --gold-glow: rgba(197, 160, 89, 0.4);
-            --glass: rgba(255, 255, 255, 0.02);
-            --border: rgba(255, 255, 255, 0.05);
+            --ferrari-red: #cc0000;
+            --carbon: #111111;
+            --gold: #ffcf40;
+            --white: #ffffff;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Barlow Condensed', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            background-color: var(--obsidian); color: white; height: 100vh; overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            background: var(--carbon); color: var(--white); height: 100vh; overflow: hidden;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
+                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
         }
 
-        /* --- DYNAMISCHER HINTERGRUND --- */
-        .bg-fx {
-            position: absolute; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% -20%, #1a1a1a, var(--obsidian));
+        /* --- RENN-ATMOSPHÄRE --- */
+        .track-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 0%, rgba(204, 0, 0, 0.2) 0%, transparent 70%);
             z-index: -1;
         }
 
-        .aura {
-            position: absolute; width: 300px; height: 300px;
-            background: var(--gold-glow); filter: blur(120px);
-            border-radius: 50%; top: 10%; left: 50%; transform: translateX(-50%);
-            animation: pulse 8s infinite alternate; z-index: -1;
-        }
-
-        @keyframes pulse { from { opacity: 0.3; transform: translateX(-50%) scale(1); } to { opacity: 0.6; transform: translateX(-50%) scale(1.3); } }
-
-        /* --- APP CONTAINER --- */
-        .app-frame {
-            width: 100%; max-width: 420px; height: 100vh;
+        .app-container {
+            width: 100%; max-width: 450px; height: 100vh; margin: 0 auto;
             display: flex; flex-direction: column; position: relative;
-            backdrop-filter: blur(10px);
         }
 
-        /* --- ELEGANT HEADER --- */
-        .header {
-            padding: 80px 40px 40px; text-align: center;
-        }
-        .brand-title {
-            font-family: 'Cinzel Decorative', serif; font-size: 1.8rem; font-weight: 900;
-            background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            letter-spacing: 8px; margin-bottom: 5px;
-        }
-        .brand-sub { font-size: 0.55rem; letter-spacing: 5px; color: rgba(255,255,255,0.3); text-transform: uppercase; }
+        /* --- HEADER --- */
+        .header { padding: 60px 30px 20px; border-bottom: 3px solid var(--ferrari-red); background: rgba(0,0,0,0.5); }
+        .logo-area { display: flex; align-items: center; justify-content: space-between; }
+        .brand { font-family: 'Barlow Condensed'; font-style: italic; font-weight: 900; font-size: 2rem; letter-spacing: -1px; }
+        .brand span { color: var(--ferrari-red); }
+        .race-tag { font-family: 'Orbitron'; font-size: 0.6rem; color: var(--gold); letter-spacing: 3px; }
 
-        /* --- SCREEN ENGINE --- */
-        .screen { display: none; flex: 1; padding: 0 40px; flex-direction: column; justify-content: center; }
-        .active { display: flex; animation: fadeIn 1s cubic-bezier(0.23, 1, 0.32, 1); }
-        
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(10px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
-
-        /* --- LUXUS CARDS --- */
-        .glass-card {
-            background: var(--glass); border: 1px solid var(--border);
-            border-radius: 30px; padding: 35px; text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-bottom: 40px;
-            position: relative; overflow: hidden;
+        /* --- TACHOMETER (HUD) --- */
+        .dashboard {
+            padding: 20px; display: flex; justify-content: center; align-items: center;
+            background: linear-gradient(to bottom, rgba(204,0,0,0.1), transparent);
         }
-        .glass-card::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
-            animation: shine 6s infinite;
+        .speedo {
+            width: 180px; height: 180px; border: 4px solid #222; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; border-top-color: var(--ferrari-red);
+            box-shadow: 0 0 30px rgba(204, 0, 0, 0.2);
         }
-        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+        .speed-num { font-family: 'Orbitron'; font-size: 2.5rem; font-weight: 900; line-height: 1; }
+        .unit { font-size: 0.8rem; color: var(--ferrari-red); letter-spacing: 2px; }
 
-        /* --- PREMIUM BUTTONS --- */
-        .btn-infinity {
-            background: transparent; border: 1px solid #c5a059;
-            color: #f3d091; padding: 22px; border-radius: 15px;
-            font-size: 0.75rem; letter-spacing: 4px; font-weight: 600;
-            text-transform: uppercase; cursor: pointer; transition: 0.5s;
-            position: relative; overflow: hidden;
-        }
-        .btn-infinity:hover { background: rgba(197, 160, 89, 0.1); box-shadow: 0 0 30px rgba(197, 160, 89, 0.2); }
-        .btn-infinity:active { transform: scale(0.96); }
+        /* --- SCREENS --- */
+        .screen { display: none; flex: 1; padding: 30px; flex-direction: column; justify-content: center; }
+        .active { display: flex; animation: driftIn 0.6s ease-out; }
+        @keyframes driftIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* --- QUIZ UI --- */
-        .q-text { font-size: 1.6rem; font-weight: 100; line-height: 1.4; margin-bottom: 50px; text-align: center; color: #fff; }
-        
-        .option-item {
-            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-            padding: 20px; border-radius: 20px; margin-bottom: 15px; cursor: pointer;
-            text-align: center; transition: 0.3s; font-weight: 300; font-size: 1rem;
-        }
-        .option-item:hover { border-color: #c5a059; background: rgba(197, 160, 89, 0.05); color: #f3d091; }
-
-        /* --- HUD ELEMENTS --- */
-        .hud-overlay { position: absolute; top: 180px; width: 100%; text-align: center; pointer-events: none; }
-        .speed-val { font-family: 'Cinzel Decorative'; font-size: 3.5rem; opacity: 0.05; font-weight: 900; }
-
-        /* --- FOOTER & NAV --- */
-        .footer-sig {
-            position: absolute; bottom: 40px; width: 100%; text-align: center;
-            font-size: 0.5rem; letter-spacing: 3px; color: rgba(255,255,255,0.2);
-            text-transform: uppercase;
+        /* --- CARDS & BUTTONS --- */
+        .race-card {
+            background: var(--glass); border-left: 5px solid var(--ferrari-red);
+            padding: 25px; border-radius: 4px; margin-bottom: 20px;
         }
 
-        .nav-bar {
-            position: absolute; bottom: 80px; width: 100%; display: flex;
-            justify-content: center; gap: 30px;
+        .btn-drive {
+            background: var(--ferrari-red); color: white; border: none; padding: 20px;
+            font-size: 1.2rem; font-weight: 900; font-style: italic; text-transform: uppercase;
+            cursor: pointer; clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+            transition: 0.3s;
         }
-        .nav-icon { width: 40px; height: 1px; background: rgba(255,255,255,0.1); transition: 0.5s; }
-        .nav-icon.active { background: #c5a059; width: 80px; box-shadow: 0 0 15px #c5a059; }
+        .btn-drive:active { transform: scale(0.95); filter: brightness(1.2); }
 
+        /* --- RENNSPIEL LOGIK UI --- */
+        .question { font-size: 1.6rem; font-weight: 900; font-style: italic; margin-bottom: 30px; line-height: 1.1; }
+        .answer-grid { display: grid; gap: 15px; }
+        .answer-opt {
+            background: rgba(255,255,255,0.05); padding: 20px; border: 1px solid #333;
+            font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .answer-opt:hover { background: var(--white); color: black; }
+
+        /* --- FOOTER --- */
+        .footer-credits {
+            text-align: center; padding: 20px; font-size: 0.7rem; color: #555;
+            letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+        }
     </style>
 </head>
 <body>
 
-<div class="bg-fx"></div>
-<div class="aura"></div>
+<div class="track-bg"></div>
 
-<div class="app-frame">
+<div class="app-container">
     <header class="header">
-        <h1 class="brand-title">AMIAR</h1>
-        <h1 class="brand-title" style="margin-top: -15px;">KEMPF</h1>
-        <p class="brand-sub">Infinity Velocity • Ultra Luxe</p>
+        <div class="logo-area">
+            <div class="brand">AMIAR <span>KEMPF</span></div>
+            <div class="race-tag">SCUDERIA V12</div>
+        </div>
     </header>
 
-    <div class="hud-overlay">
-        <div class="speed-val" id="hud-bg">0000</div>
+    <div class="dashboard">
+        <div class="speedo">
+            <span class="unit">GESCHWINDIGKEIT</span>
+            <span class="speed-num" id="speed-display">000</span>
+            <span class="unit">KM/H</span>
+        </div>
     </div>
 
     <div id="screen-home" class="screen active">
-        <div class="glass-card">
-            <h3 style="font-weight: 100; letter-spacing: 2px; margin-bottom: 10px;">WILLKOMMEN</h3>
-            <p style="font-size: 0.8rem; opacity: 0.4; line-height: 1.8;">Initialisierung des Elite-Moduls. Bereit für die Performance Ihres Lebens?</p>
+        <div class="race-card">
+            <h2 style="font-size: 2rem; margin-bottom: 10px;">BEREIT ZUM START?</h2>
+            <p style="opacity: 0.6;">Drücke auf Zündung, um das Rennen gegen die Zeit zu beginnen. Nur die Elite erreicht das Podium.</p>
         </div>
-        <button class="btn-infinity" onclick="startGame()">System Aktivieren</button>
+        <button class="btn-drive" onclick="startRace()">MOTOR STARTEN</button>
     </div>
 
     <div id="screen-race" class="screen">
-        <div id="quiz-ui">
-            <h2 class="q-text" id="q-text">Lade Sektor...</h2>
-            <div id="options-container"></div>
+        <div id="game-engine">
+            <h2 class="question" id="q-text">Initialisiere Renn-Daten...</h2>
+            <div class="answer-grid" id="answer-box"></div>
         </div>
 
         <div id="feedback" style="display:none; text-align:center;">
-            <h1 id="fb-status" style="font-family: 'Cinzel Decorative'; font-size: 2rem; margin-bottom: 10px;"></h1>
-            <p id="fb-desc" style="font-size: 0.8rem; opacity: 0.4; margin-bottom: 40px;"></p>
-            <button class="btn-infinity" style="width: 100%;" onclick="nextQuestion()">Nächster Sektor</button>
+            <h1 id="fb-title" style="font-size: 3rem; font-style: italic; margin-bottom: 10px;"></h1>
+            <p id="fb-desc" style="opacity: 0.6; margin-bottom: 40px;"></p>
+            <button class="btn-drive" style="width: 100%;" onclick="nextLap()">NÄCHSTE RUNDE</button>
         </div>
     </div>
 
     <div id="screen-leader" class="screen">
-        <div class="glass-card">
-            <h4 style="font-weight: 100; opacity: 0.5; margin-bottom: 15px;">FINALES RESULTAT</h4>
-            <h2 id="final-score" style="font-family: 'Cinzel Decorative'; font-size: 3rem; color: #f3d091;">0</h2>
-            <p style="letter-spacing: 4px; font-size: 0.6rem; margin-top: 10px;">KM/H VELOCITY</p>
+        <div class="race-card" style="text-align: center;">
+            <h3 style="color: var(--gold); letter-spacing: 3px;">ZIELGERADE ERREICHT</h3>
+            <h1 style="font-size: 4rem; font-style: italic;" id="final-speed">0</h1>
+            <p style="opacity: 0.5;">DEINE TOP-SPEED IM RENNKURS</p>
         </div>
-        <button class="btn-infinity" onclick="location.reload()">System Neustart</button>
+        <button class="btn-drive" onclick="location.reload()">NEUER VERSUCH</button>
     </div>
 
-    <div class="nav-bar">
-        <div class="nav-icon active" id="dot-home"></div>
-        <div class="nav-icon" id="dot-race"></div>
-        <div class="nav-icon" id="dot-leader"></div>
-    </div>
-
-    <footer class="footer-sig">Produziert von Wowa & Amiar Kempf</footer>
+    <footer class="footer-credits">
+        Produziert von Wowa & Amiar Kempf
+    </footer>
 </div>
 
 <script>
-    const DB = [
-        { q: "Was definiert wahren Luxus?", o: ["Zeit", "Geld", "Präzision", "Exklusivität"], c: 3, e: "Wahrer Luxus ist das, was man nicht kaufen kann." },
-        { q: "Amiar Kempf Edition: Was ist das Ziel?", o: ["Top Speed", "Perfektion", "Dominanz", "Alles davon"], c: 3, e: "Keine Kompromisse in der Performance." },
-        { q: "Welches Material glänzt am stärksten?", o: ["Carbon", "Obsidian", "Platin", "Gold"], c: 1, e: "Obsidian spiegelt die Seele der App wider." }
+    const RENN_DATEN = [
+        { q: "Welcher Ferrari Motor ist legendär?", o: ["V6 Hybrid", "V12 Saugmotor", "W16 Quad", "4-Zylinder"], c: 1, e: "Der V12 ist die Seele von Ferrari." },
+        { q: "Was bedeutet 'Rosso Corsa'?", o: ["Rote Kurve", "Renn-Rot", "Schnelles Feuer", "Sieg-Farbe"], c: 1, e: "Die traditionelle Farbe italienischer Rennwagen." },
+        { q: "Wo steht das Ferrari Werk?", o: ["Rom", "Monaco", "Maranello", "Mailand"], c: 2, e: "In Maranello schlägt das Herz der Scuderia." },
+        { q: "Wer gründete das Imperium?", o: ["Luigi Ferrari", "Enzo Ferrari", "Marco Ferrari", "Amiar Ferrari"], c: 1, e: "Enzo gründete 1947 die legendäre Marke." }
     ];
 
-    let state = { score: 0, curQ: 0 };
+    let spieler = { speed: 0, runde: 0 };
 
     function nav(s) {
         document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-icon').forEach(d => d.classList.remove('active'));
         document.getElementById('screen-' + s).classList.add('active');
-        document.getElementById('dot-' + s).classList.add('active');
     }
 
-    function startGame() {
-        state.score = 0; state.curQ = 0;
+    function startRace() {
+        spieler.speed = 0; spieler.runde = 0;
         nav('race');
-        loadQuestion();
+        loadLap();
     }
 
-    function loadQuestion() {
-        if(state.curQ >= DB.length) { showFinal(); return; }
-        const q = DB[state.curQ];
-        document.getElementById('quiz-ui').style.display = 'block';
+    function loadLap() {
+        if(spieler.runde >= RENN_DATEN.length) { finish(); return; }
+        const r = RENN_DATEN[spieler.runde];
+        document.getElementById('game-engine').style.display = 'block';
         document.getElementById('feedback').style.display = 'none';
-        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('q-text').innerText = r.q;
         
-        const container = document.getElementById('options-container');
-        container.innerHTML = '';
-        q.o.forEach((o, i) => {
-            const div = document.createElement('div');
-            div.className = 'option-item';
-            div.innerText = o;
-            div.onclick = () => check(i, q.c, q.e);
-            container.appendChild(div);
+        const box = document.getElementById('answer-box');
+        box.innerHTML = '';
+        r.o.forEach((o, i) => {
+            const btn = document.createElement('div');
+            btn.className = 'answer-opt';
+            btn.innerText = o;
+            btn.onclick = () => check(i, r.c, r.e);
+            box.appendChild(btn);
         });
     }
 
-    function check(idx, correct, fact) {
-        document.getElementById('quiz-ui').style.display = 'none';
+    function check(idx, correct, info) {
+        document.getElementById('game-engine').style.display = 'none';
         document.getElementById('feedback').style.display = 'block';
-        const status = document.getElementById('fb-status');
-        document.getElementById('fb-desc').innerText = fact;
+        const title = document.getElementById('fb-title');
+        document.getElementById('fb-desc').innerText = info;
 
         if(idx === correct) {
-            status.innerText = "EXZELLENT";
-            status.style.color = "#f3d091";
-            state.score += 850;
+            title.innerText = "TURBO!";
+            title.style.color = "#00ff00";
+            spieler.speed += 85;
         } else {
-            status.innerText = "ABGELEHNT";
-            status.style.color = "#444";
+            title.innerText = "DREHER!";
+            title.style.color = varName('--ferrari-red');
+            spieler.speed = Math.max(0, spieler.speed - 30);
         }
-        document.getElementById('hud-bg').innerText = state.score.toString().padStart(4, '0');
+        document.getElementById('speed-display').innerText = spieler.speed.toString().padStart(3, '0');
     }
 
-    function nextQuestion() {
-        state.curQ++;
-        loadQuestion();
+    function nextLap() {
+        spieler.runde++;
+        loadLap();
     }
 
-    function showFinal() {
+    function finish() {
         nav('leader');
-        document.getElementById('final-score').innerText = state.score;
+        document.getElementById('final-speed').innerText = spieler.speed + " KM/H";
+    }
+
+    function varName(name) {
+        return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
     }
 </script>
 
